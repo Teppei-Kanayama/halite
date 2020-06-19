@@ -26,6 +26,7 @@ class ActionManager:
 
     def get_action_options(self):
         ship_positions = [s.position for s in self._board.ships.values()]
+        # TODO: spawnしたタイミングで衝突しうる
         shipyard_positions = [s.position for k, s in self._board.shipyards.items() if not f'{self._me.id}-' in k]
         my_position = self._ship.position
         dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position, self._size)
@@ -75,15 +76,33 @@ def agent(obs, config):
         target_shipyard = np.random.choice(me.shipyards)
         target_shipyard.next_action = ShipyardAction.SPAWN
 
-    # STEP2: 動いていい場所を消める
+    already_convert = False
     for ship in me.ships:
+        # STEP2: 動いていい場所を消める
         action_manager = ActionManager(ship, board, me, size)
         safe_directions = action_manager.get_action_options()
 
-    # STEP3: 目的地を決める
+        # STEP3: convertするかどうかを決める
+        if len(me.shipyards) <= (board.step // 80) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
+            ship.next_action = ShipAction.CONVERT
+            already_convert = True
+            continue
+
+        # STEP4: 目的地に向かう
+        # その場にhaliteがたくさんあるなら拾う
+        if ship.cell.halite > 100:
+            continue
+
+        # haliteを載せているなら帰る
+        if ship.halite > 500 and len(me.shipyards) > 0:
+            destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
+            import pdb; pdb.set_trace()
+
+        # その他ならランダムに移動する
+        # TODO: 探索の仕方を工夫する
         direction = np.random.choice(safe_directions)
-        # direction = safe_directions[0]
-        if direction != 'stay':
-            ship.next_action = direction_mapper[direction]
+        if direction == 'stay':
+            continue
+        ship.next_action = direction_mapper[direction]
 
     return me.next_actions
