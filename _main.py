@@ -13,50 +13,48 @@ def getDirTo(fromPos, toPos, size):
 
 
 # Directions a ship can move
-direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST)
+directions = [ShipAction.NORTH, ShipAction.EAST, ShipAction.SOUTH, ShipAction.WEST]
 
 
-class ActionManager:
-    def __init__(self, ship, board):
-        self._ship = ship
-        self._board = board
+def avoid(my_ship, ships, directions):
+    ships.remove(my_ship)
+    forbidden_direnctions = [0, 0]
+    for s in ships:
+        if s[0] == my_ship[0]:
+            forbidden_direnctions[0] = 1
+        if s[1] == my_ship[1]:
+            forbidden_direnctions[1] = 1
 
-    def get_action_options(self):
-        import pdb; pdb.set_trace()
-        ship_positions = [s.position for s in self._board.ships.values()]  # [(5, 15), (15, 15), (5, 5), (15, 5)]
-        shipyard_positions = [s.position for s in self._board.shipyards.values()]  # [(5, 15), (15, 15), (5, 5), (15, 5)]
-        my_position = self._ship.position  # (5, 15)
-        dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position)
-        safe_directions = self._get_safe_directions()
-        return safe_directions
-
-    @staticmethod
-    def _get_dangerous_positions(ship_positions, shipyard_positions, my_position):
-        return [[1, 1], [2, 3]]
-
-    @staticmethod
-    def _get_safe_directions():
-        return ['north', 'east', 'south', 'west', 'stay']
+    if forbidden_direnctions[0] and forbidden_direnctions[1]:
+        directions.pop(0)
+        directions.pop(0)
+        directions.pop(0)
+        directions.pop(0)
+    elif forbidden_direnctions[0]:
+        directions.pop(3)
+        directions.pop(1)
+    elif forbidden_direnctions[1]:
+        directions.pop(0)
+        directions.pop(2)
 
 
+# Returns the commands we send to our ships and shipyards
 def agent(obs, config):
     size = config.size
     board = Board(obs, config)
     me = board.current_player
     ship_states = {}
 
-    # STEP1: shipyardがspawnするかどうかを決める
-    # とりあえず数が少なかったらランダムにspawnする
-    if len(me.ships) <= (board.step // 40) and len(me.shipyards) > 0 and me.halite >= 1000:
+    # If there are no ships, use first shipyard to spawn a ship.
+    if len(me.ships) <= min((board.step // 40), 2) and len(me.shipyards) > 0 and me.halite >= 1000:
         target_shipyard = np.random.choice(me.shipyards)
         target_shipyard.next_action = ShipyardAction.SPAWN
 
-    # STEP2: 動いていい場所を消める
-    for ship in me.ships:
-        action_manager = ActionManager(ship, board)
-        safe_directions = action_manager.get_action_options()
+    # If there are no shipyards, convert first ship into shipyard.
+    if len(me.shipyards) == 0 and len(me.ships) > 0 and me.halite >= 500:
+        me.ships[0].next_action = ShipAction.CONVERT
 
-    # STEP3: 目的地を決める
+    for ship in me.ships:
         if ship.next_action is None:
 
             # Part 1: Set the ship's state
@@ -72,6 +70,7 @@ def agent(obs, config):
                 if ship.cell.halite < 100:
                     neighbors = [ship.cell.north.halite, ship.cell.east.halite,
                                  ship.cell.south.halite, ship.cell.west.halite]
+                    avoid(ship.position, [v.position for v in board.ships.values()], neighbors)
                     random.shuffle(neighbors)
                     if len(neighbors):
                         best = max(range(len(neighbors)), key=neighbors.__getitem__)
