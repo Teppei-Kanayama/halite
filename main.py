@@ -13,6 +13,26 @@ def getDirTo(fromPos, toPos, size):
     if fromX > toX: return ShipAction.WEST
 
 
+def get_direction_to_destination(from_position, to_position, size):
+    scores = dict(north=0, south=0, east=0, west=0)
+    fromX, fromY = divmod(from_position[0], size), divmod(from_position[1], size)
+    toX, toY = divmod(to_position[0], size), divmod(to_position[1], size)
+    if fromY < toY:
+        scores['north'] += 1
+        scores['south'] -= 1
+    elif fromY > toY:
+        scores['north'] -= 1
+        scores['south'] += 1
+
+    if fromX < toX:
+        scores['east'] += 1
+        scores['west'] -= 1
+    elif fromX > toX:
+        scores['east'] -= 1
+        scores['west'] += 1
+    return scores
+
+
 # Directions a ship can move
 direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST)
 
@@ -90,13 +110,17 @@ def agent(obs, config):
 
         # STEP4: 目的地に向かう
         # その場にhaliteがたくさんあるなら拾う
-        if ship.cell.halite > 100:
+        if ship.cell.halite > 100 and 'stay' in safe_directions:
             continue
 
         # haliteを載せているなら帰る
         if ship.halite > 500 and len(me.shipyards) > 0:
             destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
-            import pdb; pdb.set_trace()
+            direction_scores = get_direction_to_destination(ship.position, destination, size=size)
+            safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
+            if len(safe_direction_scores) > 0:
+                direction = max(safe_direction_scores, key=safe_direction_scores.get)
+                ship.next_action = direction_mapper[direction]
 
         # その他ならランダムに移動する
         # TODO: 探索の仕方を工夫する
