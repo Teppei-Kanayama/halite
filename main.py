@@ -1,6 +1,7 @@
 from kaggle_environments.envs.halite.helpers import *
 import numpy as np
 import random
+import copy
 
 
 def getDirTo(fromPos, toPos, size):
@@ -22,21 +23,37 @@ class ActionManager:
         self._board = board
 
     def get_action_options(self):
-        import pdb; pdb.set_trace()
         ship_positions = [s.position for s in self._board.ships.values()]  # [(5, 15), (15, 15), (5, 5), (15, 5)]
-        shipyard_positions = [s.position for s in self._board.shipyards.values()]  # [(5, 15), (15, 15), (5, 5), (15, 5)]
+        shipyard_positions = [s.position for s in self._board.shipyards.values()]
         my_position = self._ship.position  # (5, 15)
         dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position)
-        safe_directions = self._get_safe_directions()
+        safe_directions = self._get_safe_directions(dangerous_positions, my_position)
         return safe_directions
 
     @staticmethod
     def _get_dangerous_positions(ship_positions, shipyard_positions, my_position):
-        return [[1, 1], [2, 3]]
+        dangerous_positions = []
+        ship_positions = copy.copy(ship_positions)
+        ship_positions.remove(my_position)
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        for pos in ship_positions:
+            dangerous_positions.append(pos)
+            for dir in directions:
+                dangerous_positions.append(((pos[0] + dir[0]) % 21, (pos[1] + dir[1]) % 21))
+
+        # TODO: shipyard
+        return dangerous_positions
 
     @staticmethod
-    def _get_safe_directions():
-        return ['north', 'east', 'south', 'west', 'stay']
+    def _get_safe_directions(dangerous_positions, my_position):
+        safe_directions = []
+        directions = dict(north=(0, -1), south=(0, 1), east=(1, 0), west=(-1, 0), stay=(0, 0))
+        for direction, diff in directions.items():
+            target_x = (my_position[0] + diff[0]) % 21
+            target_y = (my_position[1] + diff[1]) % 21
+            if (target_x, target_y) not in dangerous_positions:
+                safe_directions.append(direction)
+        return safe_directions
 
 
 def agent(obs, config):
