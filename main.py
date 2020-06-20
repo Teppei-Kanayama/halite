@@ -14,22 +14,30 @@ def getDirTo(fromPos, toPos, size):
 
 
 def get_direction_to_destination(from_position, to_position, size):
-    scores = dict(north=0, south=0, east=0, west=0)
-    fromX, fromY = divmod(from_position[0], size), divmod(from_position[1], size)
-    toX, toY = divmod(to_position[0], size), divmod(to_position[1], size)
-    if fromY < toY:
-        scores['north'] += 1
-        scores['south'] -= 1
-    elif fromY > toY:
-        scores['north'] -= 1
-        scores['south'] += 1
+    scores = dict(north=0, south=0, east=0, west=0, stay=0)
+    from_x = from_position[0]
+    from_y = from_position[1]
+    to_x = to_position[0]
+    to_y = to_position[1]
 
-    if fromX < toX:
+    if (from_x == to_x) & (from_y == to_y):
+        scores['stay'] += 1
+        return scores
+
+    if (from_x - to_x) % size > (to_x - from_x) % size:
         scores['east'] += 1
         scores['west'] -= 1
-    elif fromX > toX:
-        scores['east'] -= 1
+    elif (from_x - to_x) % size < (to_x - from_x) % size:
         scores['west'] += 1
+        scores['east'] -= 1
+
+    if (from_y - to_y) % size > (to_y - from_y) % size:
+        scores['north'] += 1
+        scores['south'] -= 1
+    elif (from_y - to_y) % size < (to_y - from_y) % size:
+        scores['south'] += 1
+        scores['north'] -= 1
+
     return scores
 
 
@@ -47,7 +55,7 @@ class ActionManager:
     def get_action_options(self):
         ship_positions = [s.position for s in self._board.ships.values()]
         # TODO: spawnしたタイミングで衝突しうる
-        shipyard_positions = [s.position for k, s in self._board.shipyards.items() if not f'{self._me.id}-' in k]
+        shipyard_positions = [s.position for k, s in self._board.shipyards.items() if not f'-{self._me.id + 1}' in k]
         my_position = self._ship.position
         dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position, self._size)
         safe_directions = self._get_safe_directions(dangerous_positions, my_position, self._size)
@@ -92,7 +100,7 @@ def agent(obs, config):
 
     # STEP1: shipyardがspawnするかどうかを決める
     # とりあえず数が少なかったらランダムにspawnする
-    if len(me.ships) <= (board.step // 40) and len(me.shipyards) > 0 and me.halite >= 1000:
+    if len(me.ships) <= min((board.step // 40), 4) and len(me.shipyards) > 0 and me.halite >= 1000:
         target_shipyard = np.random.choice(me.shipyards)
         target_shipyard.next_action = ShipyardAction.SPAWN
 
@@ -102,8 +110,11 @@ def agent(obs, config):
         action_manager = ActionManager(ship, board, me, size)
         safe_directions = action_manager.get_action_options()
 
+        if len(safe_directions) == 0:
+            continue
+
         # STEP3: convertするかどうかを決める
-        if len(me.shipyards) <= (board.step // 80) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
+        if len(me.shipyards) <= min((board.step // 80), 1) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
             ship.next_action = ShipAction.CONVERT
             already_convert = True
             continue
@@ -120,7 +131,11 @@ def agent(obs, config):
             safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
             if len(safe_direction_scores) > 0:
                 direction = max(safe_direction_scores, key=safe_direction_scores.get)
+                # print(ship.position, destination, direction_scores, safe_direction_scores, direction)
+                if direction == 'stay':
+                    continue
                 ship.next_action = direction_mapper[direction]
+                continue
 
         # その他ならランダムに移動する
         # TODO: 探索の仕方を工夫する
@@ -128,5 +143,9 @@ def agent(obs, config):
         if direction == 'stay':
             continue
         ship.next_action = direction_mapper[direction]
+        continue
 
     return me.next_actions
+
+
+# cargoを積んでいるときにconvertするとcargoが自動的に格納されるので良い。
