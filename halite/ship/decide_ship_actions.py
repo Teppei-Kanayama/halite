@@ -6,7 +6,7 @@ from halite.ship.ship_utils import get_direction_to_destination
 from halite.utils.constants import direction_mapper
 
 
-def decide_ship_action(me, board, size):
+def decide_ship_actions(me, board, size):
     already_convert = False
     actions = {}
     for ship in me.ships:
