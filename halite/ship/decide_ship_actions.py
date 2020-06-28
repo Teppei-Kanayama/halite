@@ -17,7 +17,7 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
 
     # 条件を満たす場合convertする
     # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
-    if len(me.shipyards) <= min((board.step // 80), 1) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
+    if len(me.shipyards) < 1 and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT, True
 
     # その場にhaliteがたくさんあるなら拾う
@@ -36,7 +36,7 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
             return direction_mapper[direction], already_convert
 
     # 探索範囲内で閾値以上のhaliteがある地点のうち、最も近い地点に移動する
-    threshold = np.percentile([cell.halite for cell in board.cells.values()], 80)
+    threshold = np.percentile([cell.halite for cell in board.cells.values()], 85)
     search_range = [((ship.position[0] + i) % size, (ship.position[0] + j) % size) for i in range(5) for j in range(5)]
     target_map = {pos: board.cells[pos].halite for pos in search_range if board.cells[pos].halite >= threshold}
 
