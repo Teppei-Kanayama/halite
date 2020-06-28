@@ -1,6 +1,6 @@
 import unittest
 
-from main import ActionManager
+from halite.ship.action_manager import ActionManager
 
 
 class TestActionManager(unittest.TestCase):

@@ -1,9 +1,9 @@
 from kaggle_environments.envs.halite.helpers import *
 import numpy as np
 
+from halite.ship.action_manager import ActionManager
 from halite.ship.ship_utils import get_direction_to_destination
 from halite.utils.constants import direction_mapper
-from main import ActionManager
 
 
 def agent(obs, config):
