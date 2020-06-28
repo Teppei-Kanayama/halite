@@ -2,12 +2,13 @@ from kaggle_environments.envs.halite.helpers import *
 import numpy as np
 
 from halite.ship.action_manager import ActionManager
-from halite.ship.ship_utils import decide_direction, decide_direction_for_rich_position
+from halite.ship.ship_utils import decide_direction
+from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard
 from halite.utils.constants import direction_mapper
 
 
 def decide_one_ship_action(ship, me, board, size, already_convert):
-    # 動いていい場所を消める
+    # 動いていい場所を決める
     action_manager = ActionManager(ship, board, me, size)
     safe_directions = action_manager.get_action_options()
 
@@ -15,7 +16,7 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
     if len(safe_directions) == 0:
         return None, already_convert
 
-    # 条件を満たす場合convertする
+    # 下記の条件を満たす場合shipyardにconvertする
     # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
     if len(me.shipyards) <= min((board.step // 80), 1) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT, True
@@ -26,24 +27,16 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
 
     # haliteをたくさん載せているならshipyardsに帰る
     if ship.halite > 500 and len(me.shipyards) > 0:
-        destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
-        direction = decide_direction(safe_directions, ship.position, destination, size)
-        if direction:
-            if direction == 'stay':  # TODO: stayもdirectionとして扱う
-                return None, already_convert
-            return direction_mapper[direction], already_convert
+        direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
+        return direction_mapper[direction], already_convert
 
     # 探索範囲内で閾値以上のhaliteがある地点のうち、最も近い地点に移動する
     direction = decide_direction_for_rich_position(board, ship, size, safe_directions)
     if direction:
-        if direction == 'stay':
-            return None, already_convert
         return direction_mapper[direction], already_convert
 
     # その他ならランダムに移動する
     direction = np.random.choice(safe_directions)
-    if direction == 'stay':
-        return None, already_convert
     return direction_mapper[direction], already_convert
 
 
