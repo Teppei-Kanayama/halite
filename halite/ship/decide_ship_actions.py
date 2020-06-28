@@ -1,17 +1,11 @@
 from kaggle_environments.envs.halite.helpers import *
-import numpy as np
 
 from halite.ship.action_manager import ActionManager
-from halite.ship.ship_utils import decide_direction
 from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard
 from halite.utils.constants import direction_mapper
 
 
-def decide_one_ship_action(ship, me, board, size, already_convert):
-    # 動いていい場所を決める
-    action_manager = ActionManager(ship, board, me, size)
-    safe_directions = action_manager.get_action_options()
-
+def decide_one_ship_action(ship, me, board, size, safe_directions, already_convert):
     # 動ける場所がないなら動かない
     if len(safe_directions) == 0:
         return None, already_convert
@@ -30,13 +24,8 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
         direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
         return direction_mapper[direction], already_convert
 
-    # 探索範囲内で閾値以上のhaliteがある地点のうち、最も近い地点に移動する
+    # haliteを探す
     direction = decide_direction_for_rich_position(board, ship, size, safe_directions)
-    if direction:
-        return direction_mapper[direction], already_convert
-
-    # その他ならランダムに移動する
-    direction = np.random.choice(safe_directions)
     return direction_mapper[direction], already_convert
 
 
@@ -44,7 +33,10 @@ def decide_ship_actions(me, board, size):
     actions = {}
     already_convert = False
     for ship in me.ships:
-        action, already_convert = decide_one_ship_action(ship, me, board, size, already_convert)
+        # 動いていい場所を決める
+        action_manager = ActionManager(ship, board, me, size)
+        safe_directions = action_manager.get_action_options()  # TODO: safe_directionsの決定時に、ship間の連携ができるようにしたい
+        action, already_convert = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert)
         if action:
             actions[ship.id] = action
     return actions
