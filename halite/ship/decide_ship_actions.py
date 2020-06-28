@@ -2,7 +2,7 @@ from kaggle_environments.envs.halite.helpers import *
 import numpy as np
 
 from halite.ship.action_manager import ActionManager
-from halite.ship.ship_utils import get_direction_to_destination
+from halite.ship.ship_utils import get_direction_to_destination, decide_direction
 from halite.utils.constants import direction_mapper
 
 
@@ -27,10 +27,8 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
     # haliteをたくさん載せているならshipyardsに帰る
     if ship.halite > 500 and len(me.shipyards) > 0:
         destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
-        direction_scores = get_direction_to_destination(ship.position, destination, size=size)
-        safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
-        if len(safe_direction_scores) > 0:
-            direction = max(safe_direction_scores, key=safe_direction_scores.get)
+        direction = decide_direction(safe_directions, ship.position, destination, size)
+        if direction:
             if direction == 'stay':
                 return None, already_convert
             return direction_mapper[direction], already_convert
