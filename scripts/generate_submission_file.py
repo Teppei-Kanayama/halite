@@ -3,7 +3,7 @@ import itertools
 from datetime import datetime
 
 
-target_directories = ['ship', 'utils']
+target_directories = ['ship', 'shipyard', 'utils']
 target_files = [glob.glob(f'./halite/{d}/*.py') for d in target_directories]
 target_files = list(itertools.chain.from_iterable(target_files))
 
