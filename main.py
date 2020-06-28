@@ -1,16 +1,10 @@
 from kaggle_environments.envs.halite.helpers import *
 import numpy as np
-import random
 import copy
 
 
-def getDirTo(fromPos, toPos, size):
-    fromX, fromY = divmod(fromPos[0],size), divmod(fromPos[1],size)
-    toX, toY = divmod(toPos[0],size), divmod(toPos[1],size)
-    if fromY < toY: return ShipAction.NORTH
-    if fromY > toY: return ShipAction.SOUTH
-    if fromX < toX: return ShipAction.EAST
-    if fromX > toX: return ShipAction.WEST
+# Directions a ship can move
+direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST)
 
 
 def get_direction_to_destination(from_position, to_position, size):
@@ -39,10 +33,6 @@ def get_direction_to_destination(from_position, to_position, size):
         scores['north'] -= 1
 
     return scores
-
-
-# Directions a ship can move
-direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST)
 
 
 class ActionManager:
@@ -96,7 +86,6 @@ def agent(obs, config):
     size = config.size
     board = Board(obs, config)
     me = board.current_player
-    ship_states = {}
 
     # STEP1: shipyardがspawnするかどうかを決める
     # とりあえず数が少なかったらランダムにspawnする
