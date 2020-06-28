@@ -3,6 +3,7 @@ import numpy as np
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.ship_utils import get_direction_to_destination
+from halite.shipyard.decide_shipyard_action import decide_shipyard_action
 from halite.utils.constants import direction_mapper
 
 
@@ -11,11 +12,9 @@ def agent(obs, config):
     board = Board(obs, config)
     me = board.current_player
 
-    # STEP1: shipyardがspawnするかどうかを決める
-    # とりあえず数が少なかったらランダムにspawnする
-    if len(me.ships) <= min((board.step // 40), 4) and len(me.shipyards) > 0 and me.halite >= 1000:
-        target_shipyard = np.random.choice(me.shipyards)
-        target_shipyard.next_action = ShipyardAction.SPAWN
+    shipyard_actions = decide_shipyard_action(me, board)
+    for shipyard_id, action in shipyard_actions.items():
+        board.shipyards[shipyard_id].next_action = action
 
     already_convert = False
     for ship in me.ships:
