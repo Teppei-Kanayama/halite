@@ -1,23 +1,15 @@
 from kaggle_environments.envs.halite.helpers import *
-import numpy as np
-
-from halite.ship.action_manager import ActionManager
-from halite.ship.ship_utils import get_direction_to_destination
-from halite.utils.constants import direction_mapper
 
 
-def decide_one_ship_action(ship, me, board, size, already_convert):
-    # 動いていい場所を消める
-    action_manager = ActionManager(ship, board, me, size)
-    safe_directions = action_manager.get_action_options()
 
+def decide_one_ship_action(ship, me, board, size, safe_directions, already_convert):
     # 動ける場所がないなら動かない
     if len(safe_directions) == 0:
         return None, already_convert
 
-    # 条件を満たす場合convertする
+    # 下記の条件を満たす場合shipyardにconvertする
     # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
-    if (len(me.shipyards) < 1 and me.halite >= 500 and 'stay' in safe_directions and not already_convert) or (board.step >= 399):
+    if len(me.shipyards) <= min((board.step // 80), 1) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT, True
 
     # その場にhaliteがたくさんあるなら拾う
@@ -26,39 +18,11 @@ def decide_one_ship_action(ship, me, board, size, already_convert):
 
     # haliteをたくさん載せているならshipyardsに帰る
     if ship.halite > 500 and len(me.shipyards) > 0:
-        destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
-        direction_scores = get_direction_to_destination(ship.position, destination, size=size)
-        safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
-        if len(safe_direction_scores) > 0:
-            direction = max(safe_direction_scores, key=safe_direction_scores.get)
-            if direction == 'stay':
-                return None, already_convert
-            return direction_mapper[direction], already_convert
+        direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
+        return direction_mapper[direction], already_convert
 
-    # 探索範囲内で閾値以上のhaliteがある地点のうち、最も近い地点に移動する
-    threshold = np.percentile([cell.halite for cell in board.cells.values()], 85)
-    search_range = [((ship.position[0] + i) % size, (ship.position[0] + j) % size) for i in range(5) for j in range(5)]
-    target_map = {pos: board.cells[pos].halite for pos in search_range if board.cells[pos].halite >= threshold}
-
-    def calculate_distance(target):
-        distance_x = min((target[0] - ship.position[0]) % size, (ship.position[0] - target[0]) % size)
-        distance_y = min((target[1] - ship.position[1]) % size, (ship.position[1] - target[1]) % size)
-        return distance_x + distance_y
-
-    if target_map:
-        destination = min(target_map.keys(), key=calculate_distance)
-        direction_scores = get_direction_to_destination(ship.position, destination, size=size)
-        safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
-        if len(safe_direction_scores) > 0:
-            direction = max(safe_direction_scores, key=safe_direction_scores.get)
-            if direction == 'stay':
-                return None, already_convert
-            return direction_mapper[direction], already_convert
-
-    # その他ならランダムに移動する
-    direction = np.random.choice(safe_directions)
-    if direction == 'stay':
-        return None, already_convert
+    # haliteを探す
+    direction = decide_direction_for_rich_position(board, ship, size, safe_directions)
     return direction_mapper[direction], already_convert
 
 
@@ -66,7 +30,10 @@ def decide_ship_actions(me, board, size):
     actions = {}
     already_convert = False
     for ship in me.ships:
-        action, already_convert = decide_one_ship_action(ship, me, board, size, already_convert)
+        # 動いていい場所を決める
+        action_manager = ActionManager(ship, board, me, size)
+        safe_directions = action_manager.get_action_options()  # TODO: safe_directionsの決定時に、ship間の連携ができるようにしたい
+        action, already_convert = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert)
         if action:
             actions[ship.id] = action
     return actions
@@ -118,6 +85,41 @@ class ActionManager:
             if (target_x, target_y) not in dangerous_positions:
                 safe_directions.append(direction)
         return safe_directions
+import numpy as np
+
+
+
+# haliteが多い方向を探して向かう
+# 十分多くのhaliteが見つからなければrandomで移動する
+def decide_direction_for_rich_position(board, ship, size, safe_directions):
+    threshold = np.percentile([cell.halite for cell in board.cells.values()], 85)
+    search_range = [((ship.position[0] + i) % size, (ship.position[0] + j) % size) for i in range(5) for j in range(5)]
+    target_map = {pos: board.cells[pos].halite for pos in search_range if board.cells[pos].halite >= threshold}
+
+    def calculate_distance(target):
+        distance_x = min((target[0] - ship.position[0]) % size, (ship.position[0] - target[0]) % size)
+        distance_y = min((target[1] - ship.position[1]) % size, (ship.position[1] - target[1]) % size)
+        return distance_x + distance_y
+
+    if target_map:
+        destination = min(target_map.keys(), key=calculate_distance)
+        return decide_direction(safe_directions, ship.position, destination, size)
+    return np.random.choice(safe_directions)  # TODO: 1方向に定める
+
+
+# shipyardに向かう
+def decide_direction_for_shipyard(me, ship, safe_directions, size):
+    destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
+    return decide_direction(safe_directions, ship.position, destination, size)
+# pos1からpos2に行くのにかかる歩数を計算する
+def calculate_distance(pos1, pos2, size):
+    distance_x = min((pos1[0] - pos2[0]) % size, (pos2[0] - pos1[0]) % size)
+    distance_y = min((pos1[1] - pos2[1]) % size, (pos2[1] - pos1[1]) % size)
+    return distance_x + distance_y
+
+
+# from_positionからto_positionに行きたい場合に、各方向に点数をつける
+# 近くなら1, 遠ざかるなら-1, 変わらないなら0
 def get_direction_to_destination(from_position, to_position, size):
     scores = dict(north=0, south=0, east=0, west=0, stay=0)
     from_x = from_position[0]
@@ -144,6 +146,14 @@ def get_direction_to_destination(from_position, to_position, size):
         scores['north'] -= 1
 
     return scores
+
+
+# from_positionからto_positionへ行きたい場合に具体的に進むべき方向を出力する
+# safe_directionsのなかで、get_direction_to_destinationで得られたスコアが最大の方向に進む
+def decide_direction(safe_directions, from_position, to_position, size):
+    direction_scores = get_direction_to_destination(from_position, to_position, size=size)
+    safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
+    return max(safe_direction_scores, key=safe_direction_scores.get)
 import numpy as np
 from kaggle_environments.envs.halite.helpers import ShipyardAction
 
@@ -156,11 +166,9 @@ def decide_shipyard_actions(me, board):
     return {}
 from kaggle_environments.envs.halite.helpers import ShipAction
 
-direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST)
+direction_mapper = dict(north=ShipAction.NORTH, east=ShipAction.EAST, south=ShipAction.SOUTH, west=ShipAction.WEST, stay=None)
 from kaggle_environments.envs.halite.helpers import *
 
-from halite.ship.decide_ship_actions import decide_ship_actions
-from halite.shipyard.decide_shipyard_actions import decide_shipyard_actions
 
 
 def agent(obs, config):
