@@ -12,10 +12,6 @@ def agent(obs, config):
     board = Board(obs, config)
     me = board.current_player
 
-    shipyard_actions = decide_shipyard_action(me, board)
-    for shipyard_id, action in shipyard_actions.items():
-        board.shipyards[shipyard_id].next_action = action
-
     already_convert = False
     for ship in me.ships:
         # STEP2: 動いていい場所を消める
@@ -56,5 +52,9 @@ def agent(obs, config):
             continue
         ship.next_action = direction_mapper[direction]
         continue
+
+    shipyard_actions = decide_shipyard_action(me, board)
+    for shipyard_id, action in shipyard_actions.items():
+        board.shipyards[shipyard_id].next_action = action
 
     return me.next_actions
