@@ -7,23 +7,24 @@ from halite.utils.constants import direction_mapper
 
 
 def decide_one_ship_action(ship, me, board, size, already_convert):
-    # STEP2: 動いていい場所を消める
+    # 動いていい場所を消める
     action_manager = ActionManager(ship, board, me, size)
     safe_directions = action_manager.get_action_options()
 
+    # 動ける場所がないなら動かない
     if len(safe_directions) == 0:
         return None, already_convert
 
-    # STEP3: convertするかどうかを決める
+    # 条件を満たす場合convertする
+    # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
     if len(me.shipyards) <= min((board.step // 80), 1) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT, True
 
-    # STEP4: 目的地に向かう
     # その場にhaliteがたくさんあるなら拾う
     if ship.cell.halite > 100 and 'stay' in safe_directions:
         return None, already_convert
 
-    # haliteを載せているなら帰る
+    # haliteをたくさん載せているならshipyardsに帰る
     if ship.halite > 500 and len(me.shipyards) > 0:
         destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る
         direction_scores = get_direction_to_destination(ship.position, destination, size=size)
