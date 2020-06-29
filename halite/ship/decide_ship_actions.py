@@ -34,11 +34,11 @@ def decide_ship_actions(me, board, size):
     actions = {}
     already_convert = False
     for ship in me.ships:
-        # 動いていい場所を決める
         my_position = ship.position
         my_halite = ship.halite
-        ally_ship_positions = {ship.position: ship.halite for ship in me.ships}
-        enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values() if ship.position not in list(ally_ship_positions.keys())}
+        ally_ship_positions = {ship.position: ship.halite for ship in me.ships if ship.position != my_position}
+        enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values()
+                                if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
         ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
         enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions]
         action_manager = ActionManager(my_position=my_position,
