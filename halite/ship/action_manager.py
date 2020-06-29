@@ -1,6 +1,5 @@
 from typing import Dict, Tuple, List
 
-from kaggle_environments.envs.halite.helpers import ShipAction
 
 from halite.utils.constants import direction_vector
 

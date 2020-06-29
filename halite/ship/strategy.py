@@ -11,8 +11,8 @@ def decide_direction_for_rich_position(board, ship, size, safe_directions, perce
     if target_map:
         destination = min(target_map.keys(), key=lambda x: calculate_distance(x, ship.position, size))
         return decide_direction(safe_directions, ship.position, destination, size)
-    return decide_direction_by_fixed_priority(safe_directions)
-
+    # return decide_direction_by_fixed_priority(safe_directions)
+    return np.random.choice(safe_directions)
 
 # shipyardに向かう
 def decide_direction_for_shipyard(me, ship, safe_directions, size):
