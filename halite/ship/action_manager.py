@@ -19,6 +19,7 @@ class ActionManager:
 
     @staticmethod
     def _get_dangerous_positions(ship_positions, shipyard_positions, my_position, size=21):
+        # TODO: 相手のhaliteが自分よりも多ければ安全
         dangerous_positions = []
 
         # ship

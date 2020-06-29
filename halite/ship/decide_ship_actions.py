@@ -5,6 +5,7 @@ from halite.ship.strategy import decide_direction_for_rich_position, decide_dire
 from halite.utils.constants import direction_mapper
 
 
+# TODO: shipごとにいくつかのstrategyを混ぜていきたい
 def decide_one_ship_action(ship, me, board, size, safe_directions, already_convert):
     # 動ける場所がないなら動かない
     if len(safe_directions) == 0:
@@ -25,7 +26,7 @@ def decide_one_ship_action(ship, me, board, size, safe_directions, already_conve
         return direction_mapper[direction], already_convert
 
     # haliteを探す
-    direction = decide_direction_for_rich_position(board, ship, size, safe_directions)
+    direction = decide_direction_for_rich_position(board, ship, size, safe_directions, percentile_threshold=85, search_width=5)
     return direction_mapper[direction], already_convert
 
 
