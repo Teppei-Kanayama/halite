@@ -35,8 +35,21 @@ def decide_ship_actions(me, board, size):
     already_convert = False
     for ship in me.ships:
         # 動いていい場所を決める
-        action_manager = ActionManager(ship, board, me, size, actions)
-        safe_directions = action_manager.get_action_options()  # TODO: safe_directionsの決定時に、ship間の連携ができるようにしたい
+        my_position = ship.position
+        my_halite = ship.halite
+        ally_ship_positions = {ship.position: ship.halite for ship in me.ships}
+        enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values() if ship.position not in list(ally_ship_positions.keys())}
+        ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
+        enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions]
+        action_manager = ActionManager(my_position=my_position,
+                                       my_halite=my_halite,
+                                       ally_ship_positions=ally_ship_positions,
+                                       enemy_ship_positions=enemy_ship_positions,
+                                       ally_shipyard_positions=ally_shipyard_positions,
+                                       enemy_shipyard_positions=enemy_shipyard_positions,
+                                       size=size,
+                                       other_ship_actions=actions)
+        safe_directions = action_manager.get_action_options()
         action, already_convert = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert)
         if action:
             actions[ship.id] = action

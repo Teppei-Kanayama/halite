@@ -1,20 +1,31 @@
 import copy
+from typing import Dict, Tuple, List
+
+from kaggle_environments.envs.halite.helpers import ShipAction
 
 
 class ActionManager:
-    def __init__(self, ship, board, me, size, other_ship_actions):
-        self._ship = ship
-        self._board = board
-        self._me = me
+    def __init__(self, my_position: Tuple[int, int], my_halite: int, ally_ship_positions: Dict[Tuple[int, int], int],
+                 enemy_ship_positions: Dict[Tuple[int, int], int], ally_shipyard_positions: List[Tuple[int, int]],
+                 enemy_shipyard_positions: List[Tuple[int, int]], size: int, other_ship_actions: Dict[str, ShipAction]):
+        self._my_position = my_position
+        self._my_halite = my_halite
+        self._ally_ship_positions = ally_ship_positions
+        self._enemy_ship_positions = enemy_ship_positions
+        self._ally_shipyard_positions = ally_shipyard_positions
+        self._enemy_shipyard_positions = enemy_shipyard_positions
         self._size = size
         self._other_ship_actions = other_ship_actions
 
     def get_action_options(self):
-        ship_positions = [s.position for s in self._board.ships.values()]
-        shipyard_positions = [s.position for k, s in self._board.shipyards.items() if not f'-{self._me.id + 1}' in k]
-        my_position = self._ship.position
-        dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position, self._size)
-        safe_directions = self._get_safe_directions(dangerous_positions, my_position, self._size)
+        all_ship_positions = list(self._ally_ship_positions.keys()) + list(self._enemy_ship_positions.keys())
+        dangerous_positions = self._get_dangerous_positions(ship_positions=all_ship_positions,
+                                                            shipyard_positions=self._enemy_shipyard_positions,
+                                                            my_position=self._my_position,
+                                                            size=self._size)
+        safe_directions = self._get_safe_directions(dangerous_positions=dangerous_positions,
+                                                    my_position=self._my_position,
+                                                    size=self._size)
         return safe_directions
 
     @staticmethod
