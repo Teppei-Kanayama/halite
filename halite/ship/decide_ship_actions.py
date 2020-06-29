@@ -35,7 +35,7 @@ def decide_ship_actions(me, board, size):
     already_convert = False
     for ship in me.ships:
         # 動いていい場所を決める
-        action_manager = ActionManager(ship, board, me, size)
+        action_manager = ActionManager(ship, board, me, size, actions)
         safe_directions = action_manager.get_action_options()  # TODO: safe_directionsの決定時に、ship間の連携ができるようにしたい
         action, already_convert = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert)
         if action:

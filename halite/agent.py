@@ -13,7 +13,7 @@ def agent(obs, config):
     for ship_id, action in ship_actions.items():
         board.ships[ship_id].next_action = action
 
-    shipyard_actions = decide_shipyard_actions(me, board)
+    shipyard_actions = decide_shipyard_actions(me, board, ship_actions)
     for shipyard_id, action in shipyard_actions.items():
         board.shipyards[shipyard_id].next_action = action
 

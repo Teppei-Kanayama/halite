@@ -2,15 +2,15 @@ import copy
 
 
 class ActionManager:
-    def __init__(self, ship, board, me, size):
+    def __init__(self, ship, board, me, size, other_ship_actions):
         self._ship = ship
         self._board = board
         self._me = me
         self._size = size
+        self._other_ship_actions = other_ship_actions
 
     def get_action_options(self):
         ship_positions = [s.position for s in self._board.ships.values()]
-        # TODO: spawnしたタイミングで衝突しうる
         shipyard_positions = [s.position for k, s in self._board.shipyards.items() if not f'-{self._me.id + 1}' in k]
         my_position = self._ship.position
         dangerous_positions = self._get_dangerous_positions(ship_positions, shipyard_positions, my_position, self._size)
