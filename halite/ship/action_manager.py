@@ -8,7 +8,7 @@ from halite.utils.constants import direction_vector
 class ActionManager:
     def __init__(self, my_position: Tuple[int, int], my_halite: int, ally_ship_positions: Dict[Tuple[int, int], int],
                  enemy_ship_positions: Dict[Tuple[int, int], int], ally_shipyard_positions: List[Tuple[int, int]],
-                 enemy_shipyard_positions: List[Tuple[int, int]], size: int, other_ship_actions: Dict[str, ShipAction]):
+                 enemy_shipyard_positions: List[Tuple[int, int]], size: int, fixed_positions: List[Tuple[int, int]]):
         self._my_position = my_position
         self._my_halite = my_halite
         self._ally_ship_positions = ally_ship_positions
@@ -16,11 +16,12 @@ class ActionManager:
         self._ally_shipyard_positions = ally_shipyard_positions
         self._enemy_shipyard_positions = enemy_shipyard_positions
         self._size = size
-        self._other_ship_actions = other_ship_actions
+        self._fixed_positions = fixed_positions
 
     def get_action_options(self):
         dangerous_positions = self._get_dangerous_positions(enemy_ship_positions=self._enemy_ship_positions,
                                                             enemy_shipyard_positions=self._enemy_shipyard_positions,
+                                                            fixed_positions=self._fixed_positions,
                                                             size=self._size)
         safe_directions = self._get_safe_directions(dangerous_positions=dangerous_positions,
                                                     my_position=self._my_position,
@@ -29,7 +30,7 @@ class ActionManager:
 
     @staticmethod
     def _get_dangerous_positions(enemy_ship_positions: Dict[Tuple[int, int], int], enemy_shipyard_positions: List[Tuple[int, int]],
-                                 size: int) -> List[Tuple[int, int]]:
+                                 fixed_positions: List[Tuple[int, int]], size: int) -> List[Tuple[int, int]]:
         dangerous_positions = []
 
         # enemy ship
@@ -41,7 +42,7 @@ class ActionManager:
                 dangerous_positions.append(((pos[0] + dir[0]) % size, (pos[1] + dir[1]) % size))
 
         # my ship
-        # TODO: 行動が確定したshipのみ避ける
+        dangerous_positions += fixed_positions
 
         # enemy shipyard
         for pos in enemy_shipyard_positions:
