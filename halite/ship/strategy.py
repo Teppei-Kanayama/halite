@@ -21,7 +21,17 @@ def decide_direction_in_responsive_area(board, ship, size, safe_directions, resp
     if candidate_positions:
         destination = min(candidate_positions, key=lambda x: calculate_distance(x, ship.position, size))
         return decide_direction(safe_directions, ship.position, destination, size)
-    return np.random.choice(safe_directions)  # TODO: 攻撃する
+    # return np.random.choice(safe_directions)
+    return None
+
+
+def attack_heavy_nearest_ship(ship, size, safe_directions, enemy_ship_positions):
+    my_halite = ship.halite
+    heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}
+    if heavier_enemy_ship_positions:
+        destination = min(heavier_enemy_ship_positions.keys(), key=lambda x: calculate_distance(x, ship.position, size))
+        return decide_direction(safe_directions, ship.position, destination, size)
+    return np.random.choice(safe_directions)
 
 
 # shipyardに向かう

@@ -2,7 +2,7 @@ from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.ship_utils import get_nearest_areas
-from halite.ship.strategy import decide_direction_for_shipyard, decide_direction_in_responsive_area
+from halite.ship.strategy import decide_direction_for_shipyard, decide_direction_in_responsive_area, attack_heavy_nearest_ship
 from halite.utils.constants import direction_mapper, action_to_direction, direction_vector
 
 
@@ -13,7 +13,7 @@ GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
 
 # TODO: shipごとにいくつかのstrategyを混ぜていきたい
 def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
-                           responsive_area: List[Tuple[int, int]]):
+                           responsive_area: List[Tuple[int, int]], enemy_ship_positions):
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
     if board.step == 398 and ship.halite > 500:
         return ShipAction.CONVERT
@@ -39,8 +39,12 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
         direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
         return direction_mapper[direction]
 
-    # haliteを探す
+    # 閾値以上のhaliteがある場所を探す
     direction = decide_direction_in_responsive_area(board, ship, size, safe_directions, responsive_area, halite_threshold=100)
+    if direction:
+        return direction_mapper[direction]
+
+    direction = attack_heavy_nearest_ship(ship, size, safe_directions, enemy_ship_positions)
     return direction_mapper[direction]
 
 
@@ -67,7 +71,7 @@ def decide_ship_actions(me, board, size):
                                        fixed_positions=fixed_positions)
         safe_directions = action_manager.get_action_options()
         responsive_area = responsive_areas[ship.id]
-        action = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert, responsive_area)
+        action = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action
