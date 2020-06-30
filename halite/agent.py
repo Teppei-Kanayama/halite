@@ -3,13 +3,8 @@ from kaggle_environments.envs.halite.helpers import *
 from halite.ship.decide_ship_actions import decide_ship_actions
 from halite.shipyard.decide_shipyard_actions import decide_shipyard_actions
 
-count = 0
-
 
 def agent(obs, config):
-    global count
-    print(count)
-    count += 1
     size = config.size
     board = Board(obs, config)
     me = board.current_player

@@ -1,6 +1,7 @@
 simulation.ipynb
 playground/
 .idea
+agents/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
