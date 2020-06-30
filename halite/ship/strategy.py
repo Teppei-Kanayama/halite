@@ -14,6 +14,7 @@ def decide_direction_for_rich_position(board, ship, size, safe_directions, perce
     # return decide_direction_by_fixed_priority(safe_directions)
     return np.random.choice(safe_directions)
 
+
 # shipyardに向かう
 def decide_direction_for_shipyard(me, ship, safe_directions, size):
     destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る

@@ -21,6 +21,7 @@ class ActionManager:
         dangerous_positions = self._get_dangerous_positions(enemy_ship_positions=self._enemy_ship_positions,
                                                             enemy_shipyard_positions=self._enemy_shipyard_positions,
                                                             fixed_positions=self._fixed_positions,
+                                                            my_halite = self._my_halite,
                                                             size=self._size)
         safe_directions = self._get_safe_directions(dangerous_positions=dangerous_positions,
                                                     my_position=self._my_position,
@@ -29,13 +30,13 @@ class ActionManager:
 
     @staticmethod
     def _get_dangerous_positions(enemy_ship_positions: Dict[Tuple[int, int], int], enemy_shipyard_positions: List[Tuple[int, int]],
-                                 fixed_positions: List[Tuple[int, int]], size: int) -> List[Tuple[int, int]]:
+                                 fixed_positions: List[Tuple[int, int]], my_halite: int, size: int) -> List[Tuple[int, int]]:
         dangerous_positions = []
 
         # enemy ship
-        # TODO: 相手のhaliteが自分よりも多ければ安全
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-        for pos in enemy_ship_positions.keys():
+        lighter_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v <= my_halite}
+        for pos in lighter_enemy_ship_positions.keys():
             dangerous_positions.append(pos)
             for dir in directions:
                 dangerous_positions.append(((pos[0] + dir[0]) % size, (pos[1] + dir[1]) % size))
