@@ -57,7 +57,7 @@ def decide_ship_actions(me, board, size):
             actions[ship.id] = action
         if action == ShipAction.CONVERT:
             already_convert = True
-    return actions
+    return actions, fixed_positions
 
 
 def add_fixed_position(fixed_positions, action, my_position, size) -> None:
