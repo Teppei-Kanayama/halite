@@ -31,8 +31,8 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
     if ship.cell.halite > MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER and 'stay' in safe_directions:
         return None
 
-    # haliteをたくさん載せているならshipyardsに帰る
-    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
+    # 「序盤ではない」かつ「haliteをたくさん載せている」ならshipyardsに帰る
+    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0 and board.step > 80:
         direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
         return direction_mapper[direction]
 
