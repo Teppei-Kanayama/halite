@@ -37,8 +37,8 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
     if ship.cell.halite > MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER and 'stay' in safe_directions:
         return None
 
-    # 「haliteをたくさん載せている」ならshipyardsに帰る
-    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
+    # 「序盤でない」かつ「haliteをたくさん載せている」ならshipyardsに帰る
+    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0 and board.step > 80:
         direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
         return direction_mapper[direction]
 
@@ -63,8 +63,7 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
         return direction_mapper[direction]
 
 
-def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
-                            responsive_area: List[Tuple[int, int]], enemy_ship_positions):
+def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool, enemy_ship_positions):
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 300
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
@@ -92,12 +91,18 @@ def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
     already_convert = False
-    responsive_areas = get_nearest_areas(me.ships, size)
 
     for ship in me.ships:
         if ship.id not in ship_roles.keys():
             ship_roles[ship.id] = 'collector' if next_is_collector else 'attacker'
             next_is_collector = 1 - next_is_collector
+
+    COLLECTION_TIME = 80
+    if board.step < COLLECTION_TIME:
+        responsive_areas = get_nearest_areas(me.ships, size)
+    else:
+        collection_ships = [ship for ship in me.ships if ship_roles[ship.id] == 'collector']
+        responsive_areas = get_nearest_areas(collection_ships, size)
 
     for ship in me.ships:
         my_position = ship.position
@@ -116,11 +121,11 @@ def decide_ship_actions(me, board, size):
                                        size=size,
                                        fixed_positions=fixed_positions)
         safe_directions = action_manager.get_action_options()
-        responsive_area = responsive_areas[ship.id]
-        if ship_roles[ship.id] == 'collector' or board.step < 80:
+        if ship_roles[ship.id] == 'collector' or board.step < COLLECTION_TIME:
+            responsive_area = responsive_areas[ship.id]
             action = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
         elif ship_roles[ship.id] == 'attacker':
-            action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
+            action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions)
         else:
             raise NotImplementedError
 
