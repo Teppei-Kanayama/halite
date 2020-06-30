@@ -2,8 +2,7 @@ from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.ship_utils import calculate_distance
-from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard, \
-    decide_direction_in_responsive_area
+from halite.ship.strategy import decide_direction_for_shipyard, decide_direction_in_responsive_area
 from halite.utils.constants import direction_mapper, action_to_direction, direction_vector
 
 
