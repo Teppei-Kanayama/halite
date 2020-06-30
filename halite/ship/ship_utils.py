@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional, Dict, List
 
 
 # pos1からpos2に行くのにかかる歩数を計算する
@@ -44,3 +44,19 @@ def decide_direction(safe_directions, from_position, to_position, size):
     direction_scores = get_direction_to_destination(from_position, to_position, size=size)
     safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
     return max(safe_direction_scores, key=safe_direction_scores.get)
+
+
+# 他のshipより近くにあるpositionを列挙する
+# key: ship_id
+# value: positionのlist
+def get_nearest_areas(ships, size: int) -> Optional[Dict[str, List[Tuple[int, int]]]]:
+    if len(ships) == 0:
+        return None
+
+    responsive_areas = {ship.id: [] for ship in ships}
+    for x in range(size):
+        for y in range(size):
+            distance_dict = {ship.id: calculate_distance((x, y), ship.position, size) for ship in ships}
+            responsive_ship_id = min(distance_dict, key=distance_dict.get)  # TODO: 先頭の負担が大きい
+            responsive_areas[responsive_ship_id].append((x, y))
+    return responsive_areas

@@ -1,7 +1,7 @@
 from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
-from halite.ship.ship_utils import calculate_distance
+from halite.ship.ship_utils import get_nearest_areas
 from halite.ship.strategy import decide_direction_for_shipyard, decide_direction_in_responsive_area
 from halite.utils.constants import direction_mapper, action_to_direction, direction_vector
 
@@ -22,7 +22,7 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
     # 下記の条件を満たす場合shipyardにconvertする
     # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
     # TODO: 一番halieが多いやつがconvertしたほうがお得
-    # TODO: オリジナルの関数にしたがう
+    # TODO: オリジナルの関数にしたがうようにする
     if len(me.shipyards) < min((board.step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT
 
@@ -36,29 +36,15 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
         return direction_mapper[direction]
 
     # haliteを探す
-    # direction = decide_direction_for_rich_position(board, ship, size, safe_directions, percentile_threshold=85, search_width=5)
     direction = decide_direction_in_responsive_area(board, ship, size, safe_directions, responsive_area, halite_threshold=100)
     return direction_mapper[direction]
-
-
-def get_responsive_areas(ships, size: int) -> Optional[Dict[str, List[Tuple[int, int]]]]:
-    if len(ships) == 0:
-        return None
-
-    responsive_areas = {ship.id: [] for ship in ships}
-    for x in range(size):
-        for y in range(size):
-            distance_dict = {ship.id: calculate_distance((x, y), ship.position, size) for ship in ships}
-            responsive_ship_id = min(distance_dict, key=distance_dict.get)
-            responsive_areas[responsive_ship_id].append((x, y))
-    return responsive_areas
 
 
 def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
     already_convert = False
-    responsive_areas = get_responsive_areas(me.ships, size)
+    responsive_areas = get_nearest_areas(me.ships, size)
     for ship in me.ships:
         my_position = ship.position
         my_halite = ship.halite
