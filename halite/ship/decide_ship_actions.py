@@ -14,6 +14,10 @@ GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
 # TODO: shipごとにいくつかのstrategyを混ぜていきたい
 def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
                            responsive_area: List[Tuple[int, int]]):
+    # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
+    if board.step == 398 and ship.halite > 500:
+        return ShipAction.CONVERT
+
     # 動ける場所がないなら動かない
     # TODO: ランダムに動いた方がいいかもしれない
     if len(safe_directions) == 0:
