@@ -1,6 +1,7 @@
 from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
+from halite.ship.ship_utils import calculate_distance
 from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard
 from halite.utils.constants import direction_mapper, action_to_direction, direction_vector
 
@@ -11,7 +12,8 @@ GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
 
 
 # TODO: shipごとにいくつかのstrategyを混ぜていきたい
-def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool):
+def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
+                           responsive_area: List[Tuple[int, int]]):
     # 動ける場所がないなら動かない
     # TODO: ランダムに動いた方がいいかもしれない
     if len(safe_directions) == 0:
@@ -38,10 +40,21 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
     return direction_mapper[direction]
 
 
+def get_responsive_areas(ships, size: int) -> Dict[str, List[Tuple[int, int]]]:
+    responsive_areas = {ship.id: [] for ship in ships}
+    for x in range(size):
+        for y in range(size):
+            distance_dict = {ship.id: calculate_distance((x, y), ship.position, size) for ship in ships}
+            responsive_ship_id = min(distance_dict, key=distance_dict.get)
+            responsive_areas[responsive_ship_id].append((x, y))
+    return responsive_areas
+
+
 def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
     already_convert = False
+    responsive_areas = get_responsive_areas(me.ships, size)
     for ship in me.ships:
         my_position = ship.position
         my_halite = ship.halite
@@ -59,7 +72,8 @@ def decide_ship_actions(me, board, size):
                                        size=size,
                                        fixed_positions=fixed_positions)
         safe_directions = action_manager.get_action_options()
-        action = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert)
+        responsive_area = responsive_areas[ship.id]
+        action = decide_one_ship_action(ship, me, board, size, safe_directions, already_convert, responsive_area)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action
