@@ -2,7 +2,8 @@ from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.ship_utils import calculate_distance
-from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard
+from halite.ship.strategy import decide_direction_for_rich_position, decide_direction_for_shipyard, \
+    decide_direction_in_responsive_area
 from halite.utils.constants import direction_mapper, action_to_direction, direction_vector
 
 
@@ -36,7 +37,8 @@ def decide_one_ship_action(ship, me, board, size: int, safe_directions: List[Tup
         return direction_mapper[direction]
 
     # haliteを探す
-    direction = decide_direction_for_rich_position(board, ship, size, safe_directions, percentile_threshold=85, search_width=5)
+    # direction = decide_direction_for_rich_position(board, ship, size, safe_directions, percentile_threshold=85, search_width=5)
+    direction = decide_direction_in_responsive_area(board, ship, size, safe_directions, responsive_area, halite_threshold=100)
     return direction_mapper[direction]
 
 
