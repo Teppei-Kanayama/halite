@@ -12,8 +12,9 @@ next_is_collector = 1
 
 def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
                             responsive_area: List[Tuple[int, int]], enemy_ship_positions):
-    MAXIMUM_NUM_OF_SHIPYARDS = 1
+    MAXIMUM_NUM_OF_SHIPYARDS = 2
     MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER = 100
+    GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
     if board.step == 398 and ship.halite > 500:
@@ -35,6 +36,11 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
     # その場にhaliteがたくさんあるなら拾う
     if ship.cell.halite > MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER and 'stay' in safe_directions:
         return None
+
+    # 「haliteをたくさん載せている」ならshipyardsに帰る
+    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
+        direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
+        return direction_mapper[direction]
 
     # 閾値以上のhaliteがある場所を探す
     direction = decide_direction_in_responsive_area(board, ship, size, safe_directions, responsive_area, halite_threshold=100)
@@ -59,7 +65,7 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
 
 def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
                             responsive_area: List[Tuple[int, int]], enemy_ship_positions):
-    GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
+    GO_SHIPYARD_WHEN_CARGO_IS_OVER = 300
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
     if board.step == 398 and ship.halite > 500:
@@ -111,7 +117,7 @@ def decide_ship_actions(me, board, size):
                                        fixed_positions=fixed_positions)
         safe_directions = action_manager.get_action_options()
         responsive_area = responsive_areas[ship.id]
-        if ship_roles[ship.id] == 'collector':
+        if ship_roles[ship.id] == 'collector' or board.step < 80:
             action = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
         elif ship_roles[ship.id] == 'attacker':
             action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
