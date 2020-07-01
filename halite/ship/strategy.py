@@ -34,6 +34,13 @@ def attack_heavy_nearest_ship(ship, size, safe_directions, enemy_ship_positions)
     return np.random.choice(safe_directions)
 
 
+def attack_enemy_shipyard(ship, size, safe_directions, enemy_shipyard_positions):
+    if enemy_shipyard_positions:
+        destination = min(enemy_shipyard_positions, key=lambda x: calculate_distance(x, ship.position, size))
+        return decide_direction(safe_directions, ship.position, destination, size)
+    return np.random.choice(safe_directions)
+
+
 # shipyardに向かう
 def decide_direction_for_shipyard(me, ship, safe_directions, size):
     destination = np.random.choice(me.shipyards).position  # TODO: 一番近いshipyardsに帰る

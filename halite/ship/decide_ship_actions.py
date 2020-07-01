@@ -60,7 +60,7 @@ def decide_ship_actions(me, board, size):
             responsive_area = responsive_areas[ship.id]
             action = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
         elif ship_roles[ship.id] == 'attacker':
-            action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions)
+            action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions, enemy_shipyard_positions)
         else:
             raise NotImplementedError
 
