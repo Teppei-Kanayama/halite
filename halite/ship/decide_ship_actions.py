@@ -12,6 +12,7 @@ from halite.utils.constants import action_to_direction, direction_vector
 
 def manage_ship_roles(ships, board):
     # TODO: 3種類以上のrollに対応する
+    # TODO: utilsに移動
     percentile = np.percentile([cell.halite for cell in board.cells.values()], 97)
     num_ships = len(ships)
     n_collector_ships = int(num_ships * min(max((percentile / 50 - 1), 0), 1))
