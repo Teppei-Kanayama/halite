@@ -23,9 +23,10 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
         direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
         return direction_mapper[direction]
 
-    if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 80:
-        direction = attack_enemy_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
-        return direction_mapper[direction]
+    # TODO: よけてしまうのでいまのところ無意味
+    # if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 380:
+    #     direction = attack_enemy_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
+    #     return direction_mapper[direction]
 
     direction = attack_heavy_nearest_ship(ship, size, safe_directions, enemy_ship_positions)
     return direction_mapper[direction]
