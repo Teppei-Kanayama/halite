@@ -18,9 +18,9 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
         return ShipAction.CONVERT, 'final_convert'
 
     # 動ける場所がない場合
-    if len(safe_directions) == 0:
+    if len(safe_directions) == 0 or True:
         if len(safe_directions_without_shipyards) > 0:
-            return direction_mapper[np.random.choice(safe_directions)], 'kamikaze_attack'
+            return direction_mapper[np.random.choice(safe_directions_without_shipyards)], 'kamikaze_attack'
         return np.random.choice(list(direction_mapper.values())), 'random_walk'
 
     # 「haliteをたくさん載せている」ならshipyardsに帰る
