@@ -17,7 +17,7 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
         return ShipAction.CONVERT, 'final_convert'
 
     # 動ける場所がないならconvertする
-    if len(safe_directions) == 0 and ship.halite > 500:
+    if len(safe_directions) == 0 and my_halite > 500:
         return ShipAction.CONVERT, 'negative_convert'
     if len(safe_directions) == 0:
         return None, 'nothing_to_do'
