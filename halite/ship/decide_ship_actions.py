@@ -60,12 +60,12 @@ def decide_ship_actions(me, board, size):
         safe_directions = action_manager.get_action_options()
         if ship_roles[ship.id] == 'collector':
             responsive_area = responsive_areas[ship.id]
-            action = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
+            action, log = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
         elif ship_roles[ship.id] == 'attacker':
-            action = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions, enemy_shipyard_positions)
+            action, log = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions, enemy_shipyard_positions)
         else:
             raise NotImplementedError
-
+        # print(board.step, ship.id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action
