@@ -1,10 +1,9 @@
 from typing import Tuple, Optional, Dict, List
 
-
-# pos1からpos2に行くのにかかる歩数を計算する
 import numpy as np
 
 
+# pos1からpos2に行くのにかかる歩数を計算する
 def calculate_distance(pos1: Tuple[int, int], pos2: Tuple[int, int], size: int):
     distance_x = min((pos1[0] - pos2[0]) % size, (pos2[0] - pos1[0]) % size)
     distance_y = min((pos1[1] - pos2[1]) % size, (pos2[1] - pos1[1]) % size)

@@ -11,7 +11,6 @@ def decide_direction_for_rich_position(board, ship, size, safe_directions, perce
     if target_map:
         destination = min(target_map.keys(), key=lambda x: calculate_distance(x, ship.position, size))
         return decide_direction(safe_directions, ship.position, destination, size)
-    # return decide_direction_by_fixed_priority(safe_directions)
     return np.random.choice(safe_directions)
 
 
@@ -26,6 +25,7 @@ def decide_direction_in_responsive_area(board, ship, size, safe_directions, resp
     return np.random.choice(safe_directions)
 
 
+# 自分より重い敵の中で最も近い敵に向かう
 def attack_heavy_nearest_ship(ship, size, safe_directions, enemy_ship_positions):
     my_halite = ship.halite
     heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}

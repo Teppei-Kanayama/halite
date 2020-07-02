@@ -13,16 +13,16 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
     if step == 398 and my_halite > 500:
-        return ShipAction.CONVERT, 'final convert'
+        return ShipAction.CONVERT, 'final_convert'
 
     # 動ける場所がないならランダムに動く
     if len(safe_directions) == 0:
-        return np.random.choice(safe_directions), 'nothing to do'
+        return np.random.choice(safe_directions), 'nothing_to_do'
 
     # 「haliteをたくさん載せている」ならshipyardsに帰る
     if my_halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
         direction = decide_direction_for_shipyard(ally_shipyard_positions, my_position, safe_directions, size)
-        return direction_mapper[direction], 'go home'
+        return direction_mapper[direction], 'go_home'
 
     # TODO: よけてしまうのでいまのところ無意味
     # if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 380:
