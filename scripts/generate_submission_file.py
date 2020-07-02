@@ -10,9 +10,9 @@ def get_file_content_without_local_import(f):
 
 
 target_directories = ['ship', 'shipyard', 'utils']
-target_files = [glob.glob(f'./halite/{d}/*.py') for d in target_directories]
+target_files = [glob.glob(f'./halite/{d}/**', recursive=True) for d in target_directories]
 target_files = list(itertools.chain.from_iterable(target_files))
-
+target_files = [f for f in target_files if f.endswith('.py')]
 all_files_str = ''
 
 for file in target_files:

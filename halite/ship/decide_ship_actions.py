@@ -4,8 +4,8 @@ import numpy as np
 from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
-from halite.ship.attacker import decide_attacker_action
-from halite.ship.collector import decide_collector_action
+from halite.ship.roll.attacker import decide_attacker_action
+from halite.ship.roll.collector import decide_collector_action
 from halite.ship.ship_utils import get_nearest_areas
 from halite.utils.constants import action_to_direction, direction_vector
 
