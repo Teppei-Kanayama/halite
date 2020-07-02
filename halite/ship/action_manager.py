@@ -17,7 +17,7 @@ class ActionManager:
         self._size = size
         self._fixed_positions = fixed_positions
 
-    def get_action_options(self, avoid_shipyards: bool):
+    def get_action_options(self, avoid_shipyards: bool) -> List[str]:
         dangerous_positions = self._get_dangerous_positions(enemy_ship_positions=self._enemy_ship_positions,
                                                             enemy_shipyard_positions=self._enemy_shipyard_positions,
                                                             fixed_positions=self._fixed_positions,
@@ -54,7 +54,7 @@ class ActionManager:
         return dangerous_positions
 
     @staticmethod
-    def _get_safe_directions(dangerous_positions: List[Tuple[int, int]], my_position: Tuple[int, int], size: int) -> List[Tuple[int, int]]:
+    def _get_safe_directions(dangerous_positions: List[Tuple[int, int]], my_position: Tuple[int, int], size: int) -> List[str]:
         safe_directions = []
         for direction, vector in direction_vector.items():
             target_x = (my_position[0] + vector[0]) % size

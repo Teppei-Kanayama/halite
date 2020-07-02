@@ -17,9 +17,11 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
     if step == 398 and my_halite > 500:
         return ShipAction.CONVERT, 'final_convert'
 
-    # 動ける場所がないならランダムに動く
+    # 動ける場所がない場合
     if len(safe_directions) == 0:
-        return np.random.choice(safe_directions), 'nothing_to_do'
+        if len(safe_directions_without_shipyards) > 0:
+            return direction_mapper[np.random.choice(safe_directions)], 'kamikaze_attack'
+        return np.random.choice(list(direction_mapper.values())), 'random_walk'
 
     # 「haliteをたくさん載せている」ならshipyardsに帰る
     if my_halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(ally_shipyard_positions) > 0:
