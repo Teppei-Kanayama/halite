@@ -6,12 +6,13 @@ from halite.utils.constants import direction_mapper
 
 
 def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
-                           enemy_ship_positions, enemy_shipyard_positions) -> Tuple[Optional[ShipAction], str]:
+                           responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
+                           ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions) -> Tuple[Optional[ShipAction], str]:
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 300
     ATTACK_SHIPYARD_IS_LESS = 100
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
-    if board.step == 398 and ship.halite > 500:
+    if step == 398 and my_halite > 500:
         return ShipAction.CONVERT, 'final convert'
 
     # 動ける場所がないならランダムに動く

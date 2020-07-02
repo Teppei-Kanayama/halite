@@ -42,7 +42,7 @@ def decide_ship_actions(me, board, size):
     for ship in me.ships:
         my_position = ship.position
         my_halite = ship.halite
-        ally_ship_positions = {ship.position: ship.halite for ship in me.ships if ship.position != my_position}
+        ally_ship_positions = {ship.position: ship.halite for ship in me.ships if ship.position != my_position}  # 自分含まない
         enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values()
                                 if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
         ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
@@ -55,14 +55,20 @@ def decide_ship_actions(me, board, size):
                                        enemy_shipyard_positions=enemy_shipyard_positions,
                                        size=size,
                                        fixed_positions=fixed_positions)
+
         safe_directions = action_manager.get_action_options()
         if ship_roles[ship.id] == 'collector':
             responsive_area = responsive_areas[ship.id]
-            action, log = decide_collector_action(ship, me, board, size, safe_directions, already_convert, responsive_area, enemy_ship_positions)
+            action_function = decide_collector_action
         elif ship_roles[ship.id] == 'attacker':
-            action, log = decide_attacker_action(ship, me, board, size, safe_directions, already_convert, enemy_ship_positions, enemy_shipyard_positions)
+            responsive_area = None
+            action_function = decide_attacker_action
         else:
             raise NotImplementedError
+
+        action, log = action_function(ship, me, board, size, safe_directions, already_convert, responsive_area, board.step,
+                                      my_position, my_halite,
+                                      ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions)
         # print(board.step, ship.id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:

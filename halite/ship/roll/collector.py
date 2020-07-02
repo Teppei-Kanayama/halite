@@ -6,13 +6,14 @@ from halite.utils.constants import direction_mapper
 
 
 def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
-                            responsive_area: List[Tuple[int, int]], enemy_ship_positions) -> Tuple[Optional[ShipAction], str]:
+                            responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
+                            ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions) -> Tuple[Optional[ShipAction], str]:
     MAXIMUM_NUM_OF_SHIPYARDS = 2
     MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER = 100
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
 
     # 「最終ターン」かつ「haliteを500以上積んでいる」ならばconvertする
-    if board.step == 398 and ship.halite > 500:
+    if step == 398 and my_halite > 500:
         return ShipAction.CONVERT, 'final convert'
 
     # 動ける場所がないならconvertする
@@ -25,18 +26,19 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
     # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
     # TODO: 一番halieが多いやつがconvertしたほうがお得
     # TODO: オリジナルの関数にしたがうようにする
-    if len(me.shipyards) < min((board.step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
+    if len(ally_ship_positions) < min((step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
         return ShipAction.CONVERT, 'positive convert'
 
     # その場にhaliteがたくさんあるなら拾う
     if ship.cell.halite > MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER and 'stay' in safe_directions:
         return None, 'mine'
 
-    if len(me.shipyards) > 0:
+    if len(ally_ship_positions) > 0:
         # 「序盤でない」かつ「haliteをたくさん載せている」ならshipyardsに帰る
-        condition1 = ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and board.step > 80
+        condition1 = my_halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and step > 80
         # 「shipyardの近くにいる」かつ「haliteをそこそこ載せている」ならshipyardに帰る
-        condition2 = ship.halite > 100 and calculate_distance(ship.position, me.shipyards[0].position, size) <= 5
+        # TODO: 複数shipyardに対応する
+        condition2 = my_halite > 100 and calculate_distance(my_position, ally_ship_positions[0], size) <= 5
         if condition1 or condition2:
             direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
             return direction_mapper[direction], 'go home'
