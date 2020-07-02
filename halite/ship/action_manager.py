@@ -17,12 +17,13 @@ class ActionManager:
         self._size = size
         self._fixed_positions = fixed_positions
 
-    def get_action_options(self):
+    def get_action_options(self, avoid_shipyards: bool):
         dangerous_positions = self._get_dangerous_positions(enemy_ship_positions=self._enemy_ship_positions,
                                                             enemy_shipyard_positions=self._enemy_shipyard_positions,
                                                             fixed_positions=self._fixed_positions,
                                                             my_halite = self._my_halite,
-                                                            size=self._size)
+                                                            size=self._size,
+                                                            avoid_shipyards=avoid_shipyards)
         safe_directions = self._get_safe_directions(dangerous_positions=dangerous_positions,
                                                     my_position=self._my_position,
                                                     size=self._size)
@@ -30,7 +31,8 @@ class ActionManager:
 
     @staticmethod
     def _get_dangerous_positions(enemy_ship_positions: Dict[Tuple[int, int], int], enemy_shipyard_positions: List[Tuple[int, int]],
-                                 fixed_positions: List[Tuple[int, int]], my_halite: int, size: int) -> List[Tuple[int, int]]:
+                                 fixed_positions: List[Tuple[int, int]], my_halite: int, size: int,
+                                 avoid_shipyards: bool) -> List[Tuple[int, int]]:
         dangerous_positions = []
 
         # enemy ship
@@ -45,8 +47,9 @@ class ActionManager:
         dangerous_positions += fixed_positions
 
         # enemy shipyard
-        for pos in enemy_shipyard_positions:
-            dangerous_positions.append(pos)
+        if avoid_shipyards:
+            for pos in enemy_shipyard_positions:
+                dangerous_positions.append(pos)
 
         return dangerous_positions
 

@@ -5,7 +5,7 @@ from halite.ship.strategy import decide_direction_for_shipyard, decide_direction
 from halite.utils.constants import direction_mapper
 
 
-def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
+def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], safe_directions_without_shipyards, already_convert: bool,
                             responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                             ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions) -> Tuple[Optional[ShipAction], str]:
     MAXIMUM_NUM_OF_SHIPYARDS = 2

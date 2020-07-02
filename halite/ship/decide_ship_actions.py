@@ -56,7 +56,9 @@ def decide_ship_actions(me, board, size):
                                        size=size,
                                        fixed_positions=fixed_positions)
 
-        safe_directions = action_manager.get_action_options()
+        safe_directions = action_manager.get_action_options(avoid_shipyards=True)
+        safe_directions_without_shipyards = action_manager.get_action_options(avoid_shipyards=False)
+
         if ship_roles[ship.id] == 'collector':
             responsive_area = responsive_areas[ship.id]
             action_function = decide_collector_action
@@ -66,10 +68,11 @@ def decide_ship_actions(me, board, size):
         else:
             raise NotImplementedError
 
-        action, log = action_function(ship, me, board, size, safe_directions, already_convert, responsive_area, board.step,
+        action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards, already_convert,
+                                      responsive_area, board.step,
                                       my_position, my_halite,
                                       ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions)
-        print(board.step, ship.id, ship_roles[ship.id], log)
+        # print(board.step, ship.id, ship_roles[ship.id], log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action

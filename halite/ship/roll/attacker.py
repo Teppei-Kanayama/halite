@@ -5,8 +5,8 @@ from halite.ship.strategy import decide_direction_for_shipyard, attack_heavy_nea
 from halite.utils.constants import direction_mapper
 
 
-def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], already_convert: bool,
-                           responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
+def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tuple[int, int]], safe_directions_without_shipyards,
+                           already_convert: bool, responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                            ally_ship_positions, enemy_ship_positions,
                            ally_shipyard_positions: List[Tuple[int, int]],
                            enemy_shipyard_positions: List[Tuple[int, int]]) -> Tuple[Optional[ShipAction], str]:
@@ -26,10 +26,9 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
         direction = decide_direction_for_shipyard(ally_shipyard_positions, my_position, safe_directions, size)
         return direction_mapper[direction], 'go_home'
 
-    # TODO: よけてしまうのでいまのところ無意味
-    # if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 380:
-    #     direction = attack_enemy_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
-    #     return direction_mapper[direction]
+    if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 350:
+        direction = attack_enemy_shipyard(ship, size, safe_directions_without_shipyards, enemy_shipyard_positions)
+        return direction_mapper[direction], 'attack_shipyard'
 
     direction = attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size)
-    return direction_mapper[direction], 'attack'
+    return direction_mapper[direction], 'attack_ship'
