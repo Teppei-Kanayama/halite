@@ -40,7 +40,7 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[Tu
         # TODO: 複数shipyardに対応する
         condition2 = my_halite > 100 and calculate_distance(my_position, ally_ship_positions[0], size) <= 5
         if condition1 or condition2:
-            direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
+            direction = decide_direction_for_shipyard(ally_shipyard_positions, my_position, safe_directions, size)
             return direction_mapper[direction], 'go home'
 
     # 閾値以上のhaliteがある場所を探す

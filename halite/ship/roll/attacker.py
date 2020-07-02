@@ -20,8 +20,8 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[Tup
         return np.random.choice(safe_directions), 'nothing to do'
 
     # 「haliteをたくさん載せている」ならshipyardsに帰る
-    if ship.halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
-        direction = decide_direction_for_shipyard(me, ship, safe_directions, size)
+    if my_halite > GO_SHIPYARD_WHEN_CARGO_IS_OVER and len(me.shipyards) > 0:
+        direction = decide_direction_for_shipyard(ally_shipyard_positions, my_position, safe_directions, size)
         return direction_mapper[direction], 'go home'
 
     # TODO: よけてしまうのでいまのところ無意味
