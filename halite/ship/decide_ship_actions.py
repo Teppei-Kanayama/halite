@@ -1,19 +1,17 @@
 import heapq
 
-import numpy as np
 from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.roll.attacker import decide_attacker_action
 from halite.ship.roll.collector import decide_collector_action
-from halite.ship.ship_utils import get_nearest_areas
+from halite.ship.ship_utils import get_nearest_areas, calculate_halite_percentile
 from halite.utils.constants import action_to_direction, direction_vector
 
 
 def manage_ship_roles(ships, board):
     # TODO: 3種類以上のrollに対応する
-    # TODO: utilsに移動
-    percentile = np.percentile([cell.halite for cell in board.cells.values()], 97)
+    percentile = calculate_halite_percentile(board, 97)
     num_ships = len(ships)
     n_collector_ships = int(num_ships * min(max((percentile / 50 - 1), 0), 1))
     ship_halites = {ship.id: ship.halite for ship in ships}

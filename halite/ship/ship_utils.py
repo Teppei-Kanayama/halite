@@ -2,6 +2,9 @@ from typing import Tuple, Optional, Dict, List
 
 
 # pos1からpos2に行くのにかかる歩数を計算する
+import numpy as np
+
+
 def calculate_distance(pos1: Tuple[int, int], pos2: Tuple[int, int], size: int):
     distance_x = min((pos1[0] - pos2[0]) % size, (pos2[0] - pos1[0]) % size)
     distance_y = min((pos1[1] - pos2[1]) % size, (pos2[1] - pos1[1]) % size)
@@ -60,3 +63,8 @@ def get_nearest_areas(ships, size: int) -> Optional[Dict[str, List[Tuple[int, in
             responsive_ship_id = min(distance_dict, key=distance_dict.get)  # TODO: 先頭の負担が大きい
             responsive_areas[responsive_ship_id].append((x, y))
     return responsive_areas
+
+
+# 全体の盤面におけるhaliteのpercentileを計算する
+def calculate_halite_percentile(board, percentile):
+    return np.percentile([cell.halite for cell in board.cells.values()], percentile)
