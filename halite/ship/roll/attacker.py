@@ -1,7 +1,8 @@
 import numpy as np
 from kaggle_environments.envs.halite.helpers import *
 
-from halite.ship.strategy import decide_direction_for_shipyard, attack_target_shipyard, attack_heavy_target_ship
+from halite.ship.strategy import decide_direction_for_shipyard, attack_target_shipyard, attack_heavy_target_ship, \
+    attack_heavy_target_ship2
 from halite.utils.constants import direction_mapper
 
 
@@ -34,5 +35,5 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         direction = attack_target_shipyard(target_enemy_id, ship, size, safe_directions_without_shipyards, enemy_shipyard_positions, enemy_shipyard_ids)
         return direction_mapper[direction], 'attack_shipyard'
 
-    direction = attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size)
+    direction = attack_heavy_target_ship2(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size)
     return direction_mapper[direction], 'attack_ship'

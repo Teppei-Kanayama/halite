@@ -25,6 +25,9 @@ def decide_direction_in_responsive_area(board, ship, size, safe_directions, resp
     return np.random.choice(safe_directions)
 
 
+# 優先度1（MUST）：自分より重いこと
+# 優先度2：ターゲットであること
+# 優先度3：最も近いこと
 def attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size):
     heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}
     heavier_target_enemy_ship_positions = {pos: halite for pos, halite in heavier_enemy_ship_positions.items() if enemy_ship_ids[pos] == target_enemy_id}
@@ -33,6 +36,30 @@ def attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, m
     if heavier_enemy_ship_positions:
         return attack_nearest_ship(safe_directions, enemy_ship_positions, my_position, size)
     return np.random.choice(safe_directions)
+
+
+# 優先度1（MUST）：自分より重いこと
+# 優先度2：ターゲットであること
+# 優先度3：距離N以内であること
+# 優先度4：最も重いこと
+def attack_heavy_target_ship2(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size):
+    heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}
+    heavier_target_enemy_ship_positions = {pos: halite for pos, halite in heavier_enemy_ship_positions.items() if enemy_ship_ids[pos] == target_enemy_id}
+    heavier_target_close_enemy_ship_positions = {pos: halite for pos, halite in heavier_target_enemy_ship_positions.items()
+                                                 if calculate_distance(pos, my_position, size) <= 100}
+    if heavier_target_close_enemy_ship_positions:
+        return attack_heaviest_ship(safe_directions, heavier_target_close_enemy_ship_positions, my_position, size)
+    if heavier_target_enemy_ship_positions:
+        return attack_heaviest_ship(safe_directions, heavier_target_enemy_ship_positions, my_position, size)
+    if heavier_enemy_ship_positions:
+        return attack_nearest_ship(safe_directions, enemy_ship_positions, my_position, size)
+    return np.random.choice(safe_directions)
+
+
+# 最も重い的に向かう
+def attack_heaviest_ship(safe_directions, enemy_ship_positions, my_position, size):
+    destination = max(enemy_ship_positions.items(), key=lambda x: x[1])[0]
+    return decide_direction(safe_directions, my_position, destination, size)
 
 
 # 最も近い敵に向かう
