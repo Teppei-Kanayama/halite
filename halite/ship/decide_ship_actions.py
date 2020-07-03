@@ -72,6 +72,7 @@ def decide_ship_actions(me, board, size):
 
         ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
         enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions]
+        enemy_shipyard_ids = {shipyard.position: shipyard.id.split('-')[1] for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions}
         action_manager = ActionManager(my_position=my_position,
                                        my_halite=my_halite,
                                        ally_ship_positions=ally_ship_positions,
@@ -96,9 +97,9 @@ def decide_ship_actions(me, board, size):
         action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards, already_convert,
                                       responsive_area, board.step,
                                       my_position, my_halite,
-                                      ally_ship_positions, enemy_ship_positions, enemy_ship_ids, ally_shipyard_positions, enemy_shipyard_positions,
+                                      ally_ship_positions, enemy_ship_positions, enemy_ship_ids, ally_shipyard_positions, enemy_shipyard_positions, enemy_shipyard_ids,
                                       target_enemy_id)
-        print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
+        # print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action

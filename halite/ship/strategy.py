@@ -26,27 +26,36 @@ def decide_direction_in_responsive_area(board, ship, size, safe_directions, resp
 
 
 def attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size):
-    target_enemy_ship_positions = {pos: halite for pos, halite in enemy_ship_positions.items() if enemy_ship_ids[pos] == target_enemy_id}
-    if target_enemy_ship_positions:
-        return attack_heavy_nearest_ship(safe_directions, target_enemy_ship_positions, my_halite, my_position, size)
-    return attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size)
-
-
-# 自分より重い敵の中で最も近い敵に向かう
-def attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size):
     heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}
+    heavier_target_enemy_ship_positions = {pos: halite for pos, halite in heavier_enemy_ship_positions.items() if enemy_ship_ids[pos] == target_enemy_id}
+    if heavier_target_enemy_ship_positions:
+        return attack_nearest_ship(safe_directions, heavier_target_enemy_ship_positions, my_position, size)
     if heavier_enemy_ship_positions:
-        destination = min(heavier_enemy_ship_positions.keys(), key=lambda x: calculate_distance(x, my_position, size))
-        return decide_direction(safe_directions, my_position, destination, size)
+        return attack_nearest_ship(safe_directions, enemy_ship_positions, my_position, size)
+    return np.random.choice(safe_directions)
+
+
+# 最も近い敵に向かう
+# TODO: attack nearsest target として一般化できそう
+def attack_nearest_ship(safe_directions, enemy_ship_positions, my_position, size):
+    destination = min(enemy_ship_positions.keys(), key=lambda x: calculate_distance(x, my_position, size))
+    return decide_direction(safe_directions, my_position, destination, size)
+
+
+def attack_target_shipyard(target_enemy_id, ship, size, safe_directions, enemy_shipyard_positions, enemy_shipyard_ids):
+    target_enemy_shipyard_positions = [shipyard_position for shipyard_position, player_id in enemy_shipyard_ids.items() if player_id == target_enemy_id]
+    if target_enemy_shipyard_positions:
+        return attack_nearest_shipyard(ship, size, safe_directions, target_enemy_shipyard_positions)
+    if enemy_shipyard_positions:
+        return attack_nearest_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
     return np.random.choice(safe_directions)
 
 
 # 最も近くにある敵のshipyardに向かう
-def attack_enemy_shipyard(target_enemy_id, ship, size, safe_directions, enemy_shipyard_positions):
-    if enemy_shipyard_positions:
-        destination = min(enemy_shipyard_positions, key=lambda x: calculate_distance(x, ship.position, size))
-        return decide_direction(safe_directions, ship.position, destination, size)
-    return np.random.choice(safe_directions)
+# TODO: attack nearsest target として一般化できそう
+def attack_nearest_shipyard(ship, size, safe_directions, enemy_shipyard_positions):
+    destination = min(enemy_shipyard_positions, key=lambda x: calculate_distance(x, ship.position, size))
+    return decide_direction(safe_directions, ship.position, destination, size)
 
 
 # 最も近くにある自分のshipyardに向かう

@@ -1,7 +1,7 @@
 import numpy as np
 from kaggle_environments.envs.halite.helpers import *
 
-from halite.ship.strategy import decide_direction_for_shipyard, attack_enemy_shipyard, attack_heavy_target_ship
+from halite.ship.strategy import decide_direction_for_shipyard, attack_target_shipyard, attack_heavy_target_ship
 from halite.utils.constants import direction_mapper
 
 
@@ -10,7 +10,7 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
                            already_convert: bool, responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                            ally_ship_positions, enemy_ship_positions, enemy_ship_ids,
                            ally_shipyard_positions: List[Tuple[int, int]],
-                           enemy_shipyard_positions: List[Tuple[int, int]],
+                           enemy_shipyard_positions: List[Tuple[int, int]], enemy_shipyard_ids,
                            target_enemy_id) -> Tuple[Optional[ShipAction], str]:
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 300
     ATTACK_SHIPYARD_IS_LESS = 100
@@ -31,7 +31,7 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         return direction_mapper[direction], 'go_home'
 
     if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 350:
-        direction = attack_enemy_shipyard(target_enemy_id, ship, size, safe_directions_without_shipyards, enemy_shipyard_positions)
+        direction = attack_target_shipyard(target_enemy_id, ship, size, safe_directions_without_shipyards, enemy_shipyard_positions, enemy_shipyard_ids)
         return direction_mapper[direction], 'attack_shipyard'
 
     direction = attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size)
