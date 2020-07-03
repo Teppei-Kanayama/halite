@@ -1,5 +1,6 @@
 import glob
 import itertools
+import subprocess
 from datetime import datetime
 
 
@@ -23,5 +24,6 @@ with open('./halite/agent.py') as f:
     all_files_str += get_file_content_without_local_import(f)
 
 filename = datetime.now().strftime("%m%dT%H%M")
-with open(f'agents/submission_{filename}.py', mode='w') as f:
+git_commit_id = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"]).decode('utf-8').rstrip()
+with open(f'agents/submission_{filename}_{git_commit_id}.py', mode='w') as f:
     f.write(all_files_str)
