@@ -46,7 +46,7 @@ def decide_target_enemy(board) -> str:
     if richer_enemy_assets:
         target_enemy_id = min(richer_enemy_assets.items(), key=lambda x: x[1])[0]
         return target_enemy_id
-    return min(enemy_assets.items(), key=lambda x: x[1])[0]
+    return max(enemy_assets.items(), key=lambda x: x[1])[0]
 
 
 # どのshipがconvertするかを決める
