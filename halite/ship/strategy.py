@@ -35,7 +35,7 @@ def attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, 
 
 
 # 最も近くにある敵のshipyardに向かう
-def attack_enemy_shipyard(ship, size, safe_directions, enemy_shipyard_positions):
+def attack_enemy_shipyard(target_enemy_id, ship, size, safe_directions, enemy_shipyard_positions):
     if enemy_shipyard_positions:
         destination = min(enemy_shipyard_positions, key=lambda x: calculate_distance(x, ship.position, size))
         return decide_direction(safe_directions, ship.position, destination, size)

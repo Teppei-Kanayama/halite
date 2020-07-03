@@ -96,7 +96,6 @@ def decide_ship_actions(me, board, size):
                                       my_position, my_halite,
                                       ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions,
                                       target_enemy_id)
-        # print(board.step, ship.id, ship_roles[ship.id], log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action

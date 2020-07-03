@@ -20,7 +20,7 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         return ShipAction.CONVERT, 'final_convert'
 
     # 動ける場所がない場合
-    if len(safe_directions) == 0 or True:
+    if len(safe_directions) == 0:
         if len(safe_directions_without_shipyards) > 0:
             return direction_mapper[np.random.choice(safe_directions_without_shipyards)], 'kamikaze_attack'
         return np.random.choice(list(direction_mapper.values())), 'random_walk'
@@ -31,7 +31,7 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         return direction_mapper[direction], 'go_home'
 
     if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 350:
-        direction = attack_enemy_shipyard(ship, size, safe_directions_without_shipyards, enemy_shipyard_positions)
+        direction = attack_enemy_shipyard(target_enemy_id, ship, size, safe_directions_without_shipyards, enemy_shipyard_positions)
         return direction_mapper[direction], 'attack_shipyard'
 
     direction = attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size)
