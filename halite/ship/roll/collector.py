@@ -8,7 +8,8 @@ from halite.utils.constants import direction_mapper
 def decide_collector_action(ship, me, board, size: int, safe_directions: List[str],
                             safe_directions_without_shipyards: List[str], already_convert: bool,
                             responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
-                            ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions,
+                            ally_ship_positions, enemy_ship_positions, enemy_ship_ids,
+                            ally_shipyard_positions, enemy_shipyard_positions,
                             target_enemy_id) -> Tuple[Optional[ShipAction], str]:
     MAXIMUM_NUM_OF_SHIPYARDS = 2
     MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER = 100

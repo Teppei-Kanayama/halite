@@ -46,8 +46,7 @@ def decide_target_enemy(board):
     if richer_enemy_assets:
         target_enemy_id = min(richer_enemy_assets.items(), key=lambda x: x[1])[0]
         return target_enemy_id
-
-    return None
+    return min(enemy_assets.items(), key=lambda x: x[1])[0]
 
 
 def decide_ship_actions(me, board, size):
@@ -68,6 +67,9 @@ def decide_ship_actions(me, board, size):
         ally_ship_positions = {ship.position: ship.halite for ship in me.ships if ship.position != my_position}  # 自分含まない
         enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values()
                                 if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
+        enemy_ship_ids = {ship.position: ship.id.split('-')[1] for ship in board.ships.values()
+                                if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
+
         ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
         enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions]
         action_manager = ActionManager(my_position=my_position,
@@ -94,8 +96,9 @@ def decide_ship_actions(me, board, size):
         action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards, already_convert,
                                       responsive_area, board.step,
                                       my_position, my_halite,
-                                      ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions,
+                                      ally_ship_positions, enemy_ship_positions, enemy_ship_ids, ally_shipyard_positions, enemy_shipyard_positions,
                                       target_enemy_id)
+        print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action

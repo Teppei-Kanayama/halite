@@ -25,6 +25,13 @@ def decide_direction_in_responsive_area(board, ship, size, safe_directions, resp
     return np.random.choice(safe_directions)
 
 
+def attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size):
+    target_enemy_ship_positions = {pos: halite for pos, halite in enemy_ship_positions.items() if enemy_ship_ids[pos] == target_enemy_id}
+    if target_enemy_ship_positions:
+        return attack_heavy_nearest_ship(safe_directions, target_enemy_ship_positions, my_halite, my_position, size)
+    return attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size)
+
+
 # 自分より重い敵の中で最も近い敵に向かう
 def attack_heavy_nearest_ship(safe_directions, enemy_ship_positions, my_halite, my_position, size):
     heavier_enemy_ship_positions = {k: v for k, v in enemy_ship_positions.items() if v > my_halite}
