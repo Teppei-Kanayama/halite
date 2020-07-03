@@ -1,5 +1,6 @@
 import heapq
 
+import numpy as np
 from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
@@ -29,15 +30,37 @@ def manage_ship_roles(ships, board):
     return ship_roles
 
 
+def decide_target_enemy(board):
+    asset_dict = dict()
+    for player_id in board.players.keys():
+        player = board.players[player_id]
+        halite = player.halite
+        cargo = np.array([ship.halite for ship in player.ships]).sum()
+        total_asset = halite + cargo
+        asset_dict[player_id] = total_asset
+
+    my_asset = asset_dict[board.current_player.id]
+    enemy_assets = {player_id: asset for player_id, asset in asset_dict.items() if player_id != board.current_player.id}
+    richer_enemy_assets = {player_id: asset for player_id, asset in enemy_assets.items() if asset > my_asset}
+
+    if richer_enemy_assets:
+        target_enemy_id = min(richer_enemy_assets.items(), key=lambda x: x[1])[0]
+        return target_enemy_id
+
+    return None
+
+
 def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
-    already_convert = False
+    already_convert = False  # TODO: convert_managerを作る
 
     ship_roles = manage_ship_roles(me.ships, board)
 
     collection_ships = [ship for ship in me.ships if ship_roles[ship.id] == 'collector']
     responsive_areas = get_nearest_areas(collection_ships, size)
+
+    target_enemy_id = decide_target_enemy(board)
 
     for ship in me.ships:
         my_position = ship.position
@@ -71,7 +94,8 @@ def decide_ship_actions(me, board, size):
         action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards, already_convert,
                                       responsive_area, board.step,
                                       my_position, my_halite,
-                                      ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions)
+                                      ally_ship_positions, enemy_ship_positions, ally_shipyard_positions, enemy_shipyard_positions,
+                                      target_enemy_id)
         # print(board.step, ship.id, ship_roles[ship.id], log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:

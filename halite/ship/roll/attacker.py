@@ -10,7 +10,8 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
                            already_convert: bool, responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                            ally_ship_positions, enemy_ship_positions,
                            ally_shipyard_positions: List[Tuple[int, int]],
-                           enemy_shipyard_positions: List[Tuple[int, int]]) -> Tuple[Optional[ShipAction], str]:
+                           enemy_shipyard_positions: List[Tuple[int, int]],
+                           target_enemy_id) -> Tuple[Optional[ShipAction], str]:
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 300
     ATTACK_SHIPYARD_IS_LESS = 100
 
