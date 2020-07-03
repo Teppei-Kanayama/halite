@@ -6,7 +6,7 @@ from kaggle_environments.envs.halite.helpers import *
 from halite.ship.action_manager import ActionManager
 from halite.ship.roll.attacker import decide_attacker_action
 from halite.ship.roll.collector import decide_collector_action
-from halite.ship.ship_utils import get_nearest_areas, calculate_halite_percentile
+from halite.ship.ship_utils import get_nearest_areas, calculate_halite_percentile, calculate_distance
 from halite.utils.constants import action_to_direction, direction_vector
 
 
@@ -30,7 +30,7 @@ def manage_ship_roles(ships, board):
     return ship_roles
 
 
-def decide_target_enemy(board):
+def decide_target_enemy(board) -> str:
     asset_dict = dict()
     for player_id in board.players.keys():
         player = board.players[player_id]
@@ -49,10 +49,44 @@ def decide_target_enemy(board):
     return min(enemy_assets.items(), key=lambda x: x[1])[0]
 
 
+# どのshipがconvertするかを決める
+# 条件1: 自分のshipyardの上に乗っていない
+# 条件2: 1つめのshipyardからそこそこ離れている
+# 条件1, 2を満たす中で最もhaliteが多いやつがconvertする
+def decide_convert_ship_position(ally_shipyard_positions, ships, size) -> Optional[Tuple[int]]:
+
+    if len(ally_shipyard_positions) == 0:
+        return None
+
+    ships = [ship for ship in ships if ship.position not in ally_shipyard_positions]
+    far_away_ships = [ship for ship in ships if calculate_distance(ally_shipyard_positions[0], ship.position, size) >= 8]
+    if far_away_ships:
+        heaviest_ship = max(far_away_ships, key=lambda ship: ship.halite)
+        return heaviest_ship.position
+
+    a_little_far_away_shps = [ship for ship in ships if calculate_distance(ally_shipyard_positions[0], ship.position, size) >= 5]
+    if a_little_far_away_shps:
+        heaviest_ship = max(a_little_far_away_shps, key=lambda ship: ship.halite)
+        return heaviest_ship.position
+
+    if ships:
+        heaviest_ship = max(ships, key=lambda ship: ship.halite)
+        return heaviest_ship.position
+    return None
+
+
 def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
     already_convert = False  # TODO: convert_managerを作る
+
+    # shipyardの基礎情報
+    # TODO: *_shipyard_idsに統一する
+    ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
+    enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if
+                                shipyard.position not in ally_shipyard_positions]
+    enemy_shipyard_ids = {shipyard.position: shipyard.id.split('-')[1] for shipyard in board.shipyards.values() if
+                          shipyard.position not in ally_shipyard_positions}
 
     ship_roles = manage_ship_roles(me.ships, board)
 
@@ -60,6 +94,7 @@ def decide_ship_actions(me, board, size):
     responsive_areas = get_nearest_areas(collection_ships, size)
 
     target_enemy_id = decide_target_enemy(board)
+    convert_ship_position = decide_convert_ship_position(ally_shipyard_positions, me.ships, size)
 
     for ship in me.ships:
         my_position = ship.position
@@ -70,9 +105,6 @@ def decide_ship_actions(me, board, size):
         enemy_ship_ids = {ship.position: ship.id.split('-')[1] for ship in board.ships.values()
                                 if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
 
-        ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
-        enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions]
-        enemy_shipyard_ids = {shipyard.position: shipyard.id.split('-')[1] for shipyard in board.shipyards.values() if shipyard.position not in ally_shipyard_positions}
         action_manager = ActionManager(my_position=my_position,
                                        my_halite=my_halite,
                                        ally_ship_positions=ally_ship_positions,
@@ -98,7 +130,7 @@ def decide_ship_actions(me, board, size):
                                       responsive_area, board.step,
                                       my_position, my_halite,
                                       ally_ship_positions, enemy_ship_positions, enemy_ship_ids, ally_shipyard_positions, enemy_shipyard_positions, enemy_shipyard_ids,
-                                      target_enemy_id)
+                                      target_enemy_id, convert_ship_position)
         # print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:

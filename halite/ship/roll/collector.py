@@ -10,7 +10,7 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[st
                             responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                             ally_ship_positions, enemy_ship_positions, enemy_ship_ids,
                             ally_shipyard_positions, enemy_shipyard_positions, enemy_shipyard_ids,
-                            target_enemy_id) -> Tuple[Optional[ShipAction], str]:
+                            target_enemy_id, convert_ship_position) -> Tuple[Optional[ShipAction], str]:
     MAXIMUM_NUM_OF_SHIPYARDS = 2
     MINE_HALITE_WHEN_HALITE_UNDER_GROUND_IS_OVER = 100
     GO_SHIPYARD_WHEN_CARGO_IS_OVER = 500
@@ -26,13 +26,18 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[st
         return None, 'nothing_to_do'
 
     # shipyardにconvertする
-    # TODO: 一番halieが多いやつがconvertしたほうがお得
-    # TODO: オリジナルの関数にしたがうようにする
-    condition1 = len(ally_shipyard_positions) < min((step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS)
+    def required_shipyards(step):
+        if step < 80:
+            return 1
+        if step < 300:
+            return 2
+        return 1
+
+    condition1 = len(ally_shipyard_positions) < min(required_shipyards(step), MAXIMUM_NUM_OF_SHIPYARDS)
     condition2 = me.halite >= 500
     condition3 = 'stay' in safe_directions
-    condition4 = not already_convert
-    condition5 = my_position not in ally_shipyard_positions
+    condition4 = my_position not in ally_shipyard_positions
+    condition5 = (convert_ship_position is None) or (my_position == convert_ship_position)
     if condition1 and condition2 and condition3 and condition4 and condition5:
         return ShipAction.CONVERT, 'positive_convert'
 
