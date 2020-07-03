@@ -24,12 +24,15 @@ def decide_collector_action(ship, me, board, size: int, safe_directions: List[st
     if len(safe_directions) == 0:
         return None, 'nothing_to_do'
 
-    # 下記の条件を満たす場合shipyardにconvertする
-    # shipyardsが少ない・haliteが十分にある・stayが安全である・まだこのターンにconvertしていない
+    # shipyardにconvertする
     # TODO: 一番halieが多いやつがconvertしたほうがお得
     # TODO: オリジナルの関数にしたがうようにする
-    # TODO: 現状だとshipyardの上でconvertしようとしてしまう
-    if len(ally_shipyard_positions) < min((step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS) and me.halite >= 500 and 'stay' in safe_directions and not already_convert:
+    condition1 = len(ally_shipyard_positions) < min((step // 80 + 1), MAXIMUM_NUM_OF_SHIPYARDS)
+    condition2 = me.halite >= 500
+    condition3 = 'stay' in safe_directions
+    condition4 = not already_convert
+    condition5 = my_position not in ally_shipyard_positions
+    if condition1 and condition2 and condition3 and condition4 and condition5:
         return ShipAction.CONVERT, 'positive_convert'
 
     # その場にhaliteがたくさんあるなら拾う
