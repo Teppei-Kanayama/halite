@@ -78,7 +78,6 @@ def decide_convert_ship_position(ally_shipyard_positions, ships, size) -> Option
 def decide_ship_actions(me, board, size):
     actions = {}
     fixed_positions = []
-    already_convert = False  # TODO: convert_managerを作る
 
     # shipyardの基礎情報
     # TODO: *_shipyard_idsに統一する
@@ -126,7 +125,7 @@ def decide_ship_actions(me, board, size):
         else:
             raise NotImplementedError
 
-        action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards, already_convert,
+        action, log = action_function(ship, me, board, size, safe_directions, safe_directions_without_shipyards,
                                       responsive_area, board.step,
                                       my_position, my_halite,
                                       ally_ship_positions, enemy_ship_positions, enemy_ship_ids, ally_shipyard_positions, enemy_shipyard_positions, enemy_shipyard_ids,
@@ -135,8 +134,6 @@ def decide_ship_actions(me, board, size):
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action
-        if action == ShipAction.CONVERT:
-            already_convert = True
     return actions, fixed_positions
 
 

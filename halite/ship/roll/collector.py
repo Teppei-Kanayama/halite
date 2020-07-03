@@ -6,7 +6,7 @@ from halite.utils.constants import direction_mapper
 
 
 def decide_collector_action(ship, me, board, size: int, safe_directions: List[str],
-                            safe_directions_without_shipyards: List[str], already_convert: bool,
+                            safe_directions_without_shipyards: List[str],
                             responsive_area: List[Tuple[int, int]], step: int, my_position, my_halite,
                             ally_ship_positions, enemy_ship_positions, enemy_ship_ids,
                             ally_shipyard_positions, enemy_shipyard_positions, enemy_shipyard_ids,
