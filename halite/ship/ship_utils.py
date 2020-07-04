@@ -1,3 +1,4 @@
+import random
 from typing import Tuple, Optional, Dict, List
 
 import numpy as np
@@ -40,11 +41,18 @@ def get_direction_to_destination(from_position, to_position, size):
     return scores
 
 
+def shuffle_dictionary(d):
+    keys = list(d.keys())
+    random.shuffle(keys)
+    return {key: d[key] for key in keys}
+
+
 # from_positionからto_positionへ行きたい場合に具体的に進むべき方向を出力する
 # safe_directionsのなかで、get_direction_to_destinationで得られたスコアが最大の方向に進む
 def decide_direction(safe_directions, from_position, to_position, size):
     direction_scores = get_direction_to_destination(from_position, to_position, size=size)
     safe_direction_scores = {k: v for k, v in direction_scores.items() if k in safe_directions}
+    safe_direction_scores = shuffle_dictionary(safe_direction_scores)
     return max(safe_direction_scores, key=safe_direction_scores.get)
 
 
@@ -59,7 +67,8 @@ def get_nearest_areas(ships, size: int) -> Optional[Dict[str, List[Tuple[int, in
     for x in range(size):
         for y in range(size):
             distance_dict = {ship.id: calculate_distance((x, y), ship.position, size) for ship in ships}
-            responsive_ship_id = min(distance_dict, key=distance_dict.get)  # TODO: 先頭の負担が大きい
+            distance_dict = shuffle_dictionary(distance_dict)
+            responsive_ship_id = min(distance_dict, key=distance_dict.get)
             responsive_areas[responsive_ship_id].append((x, y))
     return responsive_areas
 

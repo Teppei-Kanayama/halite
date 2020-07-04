@@ -36,5 +36,5 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         if direction:
             return direction_mapper[direction], 'attack_shipyard'
 
-    direction = attack_heavy_target_ship(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size)
+    direction = attack_heavy_target_ship2(safe_directions, enemy_ship_positions, my_halite, my_position, enemy_ship_ids, target_enemy_id, size)
     return direction_mapper[direction], 'attack_ship'
