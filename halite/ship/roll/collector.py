@@ -6,7 +6,7 @@ from halite.ship.strategy import decide_direction_for_shipyard, decide_direction
 from halite.utils.constants import direction_mapper
 
 
-class Controller(RollTemplate):
+class Collector(RollTemplate):
 
     def decide_next_action(self):
         MAXIMUM_NUM_OF_SHIPYARDS = 2
@@ -42,7 +42,8 @@ class Controller(RollTemplate):
             # TODO: 複数shipyardに対応する
             condition2 = self._my_halite > 100 and calculate_distance(self._my_position, list(self._ally_shipyard_ids.keys())[0], self._size) <= 5
             if condition1 or condition2:
-                direction = decide_direction_for_shipyard(list(self._ally_shipyard_ids.keys()), self._my_position, self._safe_directions, self._size)
+                direction = decide_direction_for_shipyard(ally_shipyard_ids=self._ally_shipyard_ids, my_position=self._my_position,
+                                                          safe_directions=self._safe_directions, size=self._size)
                 return direction_mapper[direction], 'go_home'
 
         # 閾値以上のhaliteがある場所を探す

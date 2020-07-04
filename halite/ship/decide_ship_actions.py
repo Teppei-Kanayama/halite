@@ -5,7 +5,7 @@ from kaggle_environments.envs.halite.helpers import *
 
 from halite.ship.action_manager import ActionManager
 from halite.ship.roll.attacker import Attacker
-from halite.ship.roll.collector import Controller
+from halite.ship.roll.collector import Collector
 from halite.ship.ship_utils import get_nearest_areas, calculate_halite_percentile, calculate_distance
 from halite.utils.constants import action_to_direction, direction_vector
 
@@ -114,7 +114,7 @@ def decide_ship_actions(me, board, size):
         safe_directions = action_manager.get_action_options(avoid_shipyards=True)
         safe_directions_without_shipyards = action_manager.get_action_options(avoid_shipyards=False)
 
-        roll_dict = dict(controller=Controller, attacker=Attacker)
+        roll_dict = dict(collector=Collector, attacker=Attacker)
 
         responsive_area = responsive_areas[ship.id] if ship_roles[ship.id] == 'collector' else None
         agent = roll_dict[ship_roles[ship.id]](board=board, safe_directions=safe_directions, safe_directions_without_shipyards=safe_directions_without_shipyards,
