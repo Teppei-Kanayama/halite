@@ -73,9 +73,10 @@ def attack_target_shipyard(target_enemy_id, ship, size, safe_directions, enemy_s
     target_enemy_shipyard_positions = [shipyard_position for shipyard_position, player_id in enemy_shipyard_ids.items() if player_id == target_enemy_id]
     if target_enemy_shipyard_positions:
         return attack_nearest_shipyard(ship, size, safe_directions, target_enemy_shipyard_positions)
-    if enemy_shipyard_positions:
-        return attack_nearest_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
-    return np.random.choice(safe_directions)
+    # if enemy_shipyard_positions:
+    #     return attack_nearest_shipyard(ship, size, safe_directions, enemy_shipyard_positions)
+    # return np.random.choice(safe_directions)
+    return None
 
 
 # 最も近くにある敵のshipyardに向かう
