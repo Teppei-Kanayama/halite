@@ -46,8 +46,9 @@ class Controller(RollTemplate):
                 return direction_mapper[direction], 'go_home'
 
         # 閾値以上のhaliteがある場所を探す
-        direction = decide_direction_in_responsive_area(board, ship, self._size, self._safe_directions, self._responsive_area,
-                                                        halite_threshold=100)
+        # TODO: boardはあまり使いたくないが・・・
+        direction = decide_direction_in_responsive_area(board=self._board, my_position=self._my_position, size=self._size, safe_directions=self._safe_directions,
+                                                        responsive_area=self._responsive_area, halite_thresholds=[100, 50, 25, 5, 0])
         return direction_mapper[direction], 'discover_halite'
 
     @staticmethod
@@ -57,4 +58,3 @@ class Controller(RollTemplate):
         if step < 300:
             return 2
         return 1
-

@@ -4,12 +4,13 @@ from typing import List, Tuple, Dict
 
 class RollTemplate:
 
-    def __init__(self, safe_directions: List[str],  safe_directions_without_shipyards: List[str],
+    def __init__(self, board, safe_directions: List[str],  safe_directions_without_shipyards: List[str],
                  responsive_area: List[Tuple[int, int]], step: int, my_position: Tuple[int, int], my_halite: int,
                  ally_ship_halites: Dict[Tuple[int, int], int], enemy_ship_halites: Dict[Tuple[int, int], int],
                  ally_ship_ids: Dict[Tuple[int, int], str], enemy_ship_ids: Dict[Tuple[int, int], str],
                  ally_shipyard_ids: Dict[Tuple[int, int], str], enemy_shipyard_ids: Dict[Tuple[int, int], str],
                  target_enemy_id: str, convert_ship_position: Tuple[int, int], halite_under: int, size: int) -> None:
+        self._board = board
         self._safe_directions = safe_directions
         self._safe_directions_without_shipyards = safe_directions_without_shipyards
         self._responsive_area = responsive_area

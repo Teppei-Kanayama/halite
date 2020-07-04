@@ -15,13 +15,12 @@ def decide_direction_for_rich_position(board, ship, size, safe_directions, perce
 
 
 # 「responsive_areaの中」かつ「閾値以上のhaliteがある」positionの中で最も近いpositionに向かう
-def decide_direction_in_responsive_area(board, ship, size, safe_directions, responsive_area, halite_threshold):
-    halite_thresholds = [100, 50, 25, 5, 0]
+def decide_direction_in_responsive_area(board, my_position, size, safe_directions, responsive_area, halite_thresholds):
     for halite_threshold in halite_thresholds:
         candidate_positions = [pos for pos in responsive_area if board.cells[pos].halite >= halite_threshold]
         if candidate_positions:
-            destination = min(candidate_positions, key=lambda x: calculate_distance(x, ship.position, size))
-            return decide_direction(safe_directions, ship.position, destination, size)
+            destination = min(candidate_positions, key=lambda x: calculate_distance(x, my_position, size))
+            return decide_direction(safe_directions, my_position, destination, size)
     return np.random.choice(safe_directions)
 
 
