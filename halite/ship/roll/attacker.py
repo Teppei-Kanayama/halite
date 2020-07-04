@@ -31,7 +31,7 @@ def decide_attacker_action(ship, me, board, size: int, safe_directions: List[str
         direction = decide_direction_for_shipyard(ally_shipyard_positions, my_position, safe_directions, size)
         return direction_mapper[direction], 'go_home'
 
-    if ship.halite < ATTACK_SHIPYARD_IS_qLESS and board.step >= 350:
+    if ship.halite < ATTACK_SHIPYARD_IS_LESS and board.step >= 350:
         direction = attack_target_shipyard(target_enemy_id, ship, size, safe_directions_without_shipyards, enemy_shipyard_positions, enemy_shipyard_ids)
         if direction:
             return direction_mapper[direction], 'attack_shipyard'
