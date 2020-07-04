@@ -45,8 +45,9 @@ def decide_target_enemy(board) -> str:
 
     if richer_enemy_assets:
         target_enemy_id = min(richer_enemy_assets.items(), key=lambda x: x[1])[0]
-        return target_enemy_id
-    return max(enemy_assets.items(), key=lambda x: x[1])[0]
+    else:
+        target_enemy_id = max(enemy_assets.items(), key=lambda x: x[1])[0]
+    return target_enemy_id
 
 
 # どのshipがconvertするかを決める
@@ -84,9 +85,8 @@ def decide_ship_actions(me, board, size):
     ally_shipyard_positions = [shipyard.position for shipyard in me.shipyards]
     enemy_shipyard_positions = [shipyard.position for shipyard in board.shipyards.values() if
                                 shipyard.position not in ally_shipyard_positions]
-    enemy_shipyard_ids = {shipyard.position: shipyard.id.split('-')[1] for shipyard in board.shipyards.values() if
+    enemy_shipyard_ids = {shipyard.position: shipyard.player.id for shipyard in board.shipyards.values() if
                           shipyard.position not in ally_shipyard_positions}
-
     ship_roles = manage_ship_roles(me.ships, board)
 
     collection_ships = [ship for ship in me.ships if ship_roles[ship.id] == 'collector']
@@ -101,7 +101,7 @@ def decide_ship_actions(me, board, size):
         ally_ship_positions = {ship.position: ship.halite for ship in me.ships if ship.position != my_position}  # 自分含まない
         enemy_ship_positions = {ship.position: ship.halite for ship in board.ships.values()
                                 if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
-        enemy_ship_ids = {ship.position: ship.id.split('-')[1] for ship in board.ships.values()
+        enemy_ship_ids = {ship.position: ship.player.id for ship in board.ships.values()
                                 if (ship.position not in list(ally_ship_positions.keys())) and (ship.position != my_position)}
 
         action_manager = ActionManager(my_position=my_position,
