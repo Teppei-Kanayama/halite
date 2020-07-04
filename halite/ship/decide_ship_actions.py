@@ -123,7 +123,7 @@ def decide_ship_actions(me, board, size):
                                                ally_shipyard_ids=ally_shipyard_ids, enemy_shipyard_ids=enemy_shipyard_ids, target_enemy_id=target_enemy_id,
                                                convert_ship_position=convert_ship_position, halite_under=ship.cell.halite, size=size)
         action, log = agent.decide_next_action()
-        # print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
+        print(board.step, ship.id, ship_roles[ship.id], target_enemy_id, log)
         add_fixed_position(fixed_positions, action, my_position, size)
         if action:
             actions[ship.id] = action

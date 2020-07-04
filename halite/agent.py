@@ -5,6 +5,8 @@ from halite.shipyard.decide_shipyard_actions import decide_shipyard_actions
 
 
 def agent(obs, config):
+    import pdb; pdb.set_trace()
+
     size = config.size
     board = Board(obs, config)
     me = board.current_player

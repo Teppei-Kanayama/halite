@@ -76,3 +76,10 @@ def get_nearest_areas(ships, size: int) -> Optional[Dict[str, List[Tuple[int, in
 # 全体の盤面におけるhaliteのpercentileを計算する
 def calculate_halite_percentile(board, percentile):
     return np.percentile([cell.halite for cell in board.cells.values()], percentile)
+
+
+# destination_chioiceの中から最も近い目的地に向かう
+def decide_direction_toward_multiple_position_options(my_position: Tuple[int, int], destination_chioice: List[Tuple[int, int]],
+                                                      safe_directions: List[str], size: int) -> str:
+    destination = min(destination_chioice, key=lambda x: calculate_distance(x, my_position, size))
+    return decide_direction(safe_directions, my_position, destination, size)
