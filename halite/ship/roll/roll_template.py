@@ -9,7 +9,7 @@ class RollTemplate:
                  ally_ship_halites: Dict[Tuple[int, int], int], enemy_ship_halites: Dict[Tuple[int, int], int],
                  ally_ship_ids: Dict[Tuple[int, int], str], enemy_ship_ids: Dict[Tuple[int, int], str],
                  ally_shipyard_ids: Dict[Tuple[int, int], str], enemy_shipyard_ids: Dict[Tuple[int, int], str],
-                 target_enemy_id: str, convert_ship_position: Tuple[int, int], size: int) -> None:
+                 target_enemy_id: str, convert_ship_position: Tuple[int, int], halite_under: int, size: int) -> None:
         self._safe_directions = safe_directions
         self._safe_directions_without_shipyards = safe_directions_without_shipyards
         self._responsive_area = responsive_area
@@ -24,6 +24,7 @@ class RollTemplate:
         self._enemy_shipyard_ids = enemy_shipyard_ids
         self._target_enemy_id = target_enemy_id
         self._convert_ship_position = convert_ship_position
+        self._halite_under = halite_under  # ship.cell.halite
         self._size = size
 
     @abstractmethod
