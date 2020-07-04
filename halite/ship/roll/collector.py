@@ -18,13 +18,13 @@ class Collector(RollTemplate):
             return ShipAction.CONVERT, 'final_convert'
 
         # 動ける場所がないならconvertする
-        if len(self._safe_directions) == 0 and self._my_halite > 500:
+        if len(self._safe_directions) == 0 and self._my_whole_halite > 500:
             return ShipAction.CONVERT, 'negative_convert'
         if len(self._safe_directions) == 0:
             return None, 'nothing_to_do'
 
         condition1 = len(self._ally_shipyard_ids) < min(self._get_required_shipyards(self._step), MAXIMUM_NUM_OF_SHIPYARDS)
-        condition2 = self._my_halite >= 500
+        condition2 = self._my_whole_halite >= 500
         condition3 = 'stay' in self._safe_directions
         condition4 = self._my_position not in self._ally_shipyard_ids.keys()
         condition5 = (self._convert_ship_position is None) or (self._my_position == self._convert_ship_position)

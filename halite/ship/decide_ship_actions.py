@@ -118,7 +118,7 @@ def decide_ship_actions(me, board, size):
 
         responsive_area = responsive_areas[ship.id] if ship_roles[ship.id] == 'collector' else None
         agent = roll_dict[ship_roles[ship.id]](board=board, safe_directions=safe_directions, safe_directions_without_shipyards=safe_directions_without_shipyards,
-                                               responsive_area=responsive_area, step=board.step, my_position=my_position, my_halite=my_halite,
+                                               responsive_area=responsive_area, step=board.step, my_position=my_position, my_halite=my_halite, my_whole_halite=me.halite,
                                                ally_ship_halites=ally_ship_halites, enemy_ship_halites=enemy_ship_halites, ally_ship_ids=ally_ship_ids, enemy_ship_ids=enemy_ship_ids,
                                                ally_shipyard_ids=ally_shipyard_ids, enemy_shipyard_ids=enemy_shipyard_ids, target_enemy_id=target_enemy_id,
                                                convert_ship_position=convert_ship_position, halite_under=ship.cell.halite, size=size)
